@@ -364,22 +364,6 @@ const StepFour: React.FC<StepFourProps> = ({
     return "Please provide the complete address where we should arrange pickup for your shipment. Include street address, city, state/province, and postal code.";
   };
 
-  const getExamples = () => {
-    if (isFOB) {
-      return [
-        "Port of Shanghai, China",
-        "Port of Rotterdam, Netherlands",
-        "Port of Los Angeles, USA",
-        "Port of Hamburg, Germany",
-      ];
-    }
-    return [
-      "123 Industrial Avenue, Los Angeles, CA 90028",
-      "Warehouse District, Building 5, Miami, FL 33101",
-      "456 Export Street, Houston, TX 77002",
-      "Manufacturing Complex, Seattle, WA 98101",
-    ];
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateFormData("locationInput", e.target.value);
@@ -393,29 +377,6 @@ const StepFour: React.FC<StepFourProps> = ({
 
   return (
     <div className="space-y-4 sm:space-y-6 lg:space-y-8 px-2 sm:px-4 lg:px-0">
-      {/* Header Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center"
-      >
-        <div
-          className={`inline-flex p-2 sm:p-3 lg:p-4 rounded-xl lg:rounded-2xl mb-2 sm:mb-3 lg:mb-4 ${
-            isFOB
-              ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white"
-              : "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
-          }`}
-        >
-          {getIcon()}
-        </div>
-        <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
-          {getInputLabel()} Details
-        </h3>
-        <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto px-2 sm:px-4">
-          {getDescription()}
-        </p>
-      </motion.div>
-
       {/* Main Input Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -445,51 +406,6 @@ const StepFour: React.FC<StepFourProps> = ({
               />
             </div>
           </div>
-
-          {/* Additional Information */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className={`rounded-lg lg:rounded-xl p-3 sm:p-4 lg:p-6 border-2 ${
-              isFOB
-                ? "bg-blue-50 border-blue-200"
-                : "bg-green-50 border-green-200"
-            }`}
-          >
-            <h4
-              className={`font-semibold mb-2 text-xs sm:text-sm lg:text-base ${
-                isFOB ? "text-blue-900" : "text-green-900"
-              }`}
-            >
-              {isFOB ? "Port Requirements:" : "Pickup Requirements:"}
-            </h4>
-            <ul
-              className={`text-xs sm:text-sm space-y-1 ${
-                isFOB ? "text-blue-800" : "text-green-800"
-              }`}
-            >
-              {isFOB ? (
-                <>
-                  <li>• Include official port name and country</li>
-                  <li>• Verify port has facilities for your cargo type</li>
-                  <li>• Consider port congestion and schedule</li>
-                  <li>• Check port security and customs procedures</li>
-                </>
-              ) : (
-                <>
-                  <li>• Provide complete street address with postal code</li>
-                  <li>• Ensure location is accessible for freight vehicles</li>
-                  <li>
-                    • Include contact person and phone number if available
-                  </li>
-                  <li>
-                    • Note any special access requirements or restrictions
-                  </li>
-                </>
-              )}
-            </ul>
-          </motion.div>
         </div>
       </motion.div>
 

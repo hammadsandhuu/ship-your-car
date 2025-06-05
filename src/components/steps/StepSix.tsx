@@ -121,29 +121,11 @@ const StepSix: React.FC<StepSixProps> = ({
     if (formData.shippingType === "transport-only") {
       return "Schedule Meeting";
     }
-    return "Schedule Consultation Meeting";
+    return "Book Your Free Freight Call — 15 Minute";
   };
 
   return (
     <div className="space-y-6 sm:space-y-8 px-4 sm:px-6 lg:px-0">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center"
-      >
-        <div className="inline-flex p-3 sm:p-4 rounded-xl sm:rounded-2xl mb-3 sm:mb-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white">
-          <Calendar className="w-6 h-6 sm:w-8 sm:h-8" />
-        </div>
-        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-          Shipment Timeline & Readiness
-        </h3>
-        <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto px-4">
-          When will your shipment be ready for pickup? This helps us plan the
-          optimal logistics schedule
-        </p>
-      </motion.div>
-
       {/* Timeline Options */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {options.map((option, index) => (
@@ -216,19 +198,6 @@ const StepSix: React.FC<StepSixProps> = ({
                   <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 leading-relaxed">
                     {option.description}
                   </p>
-
-                  <div className="bg-gray-50 rounded-lg p-3 mb-3 sm:mb-4">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500" />
-                      <span className="text-xs sm:text-sm font-medium text-gray-700">
-                        Timeline
-                      </span>
-                    </div>
-                    <p className="text-xs sm:text-sm text-gray-600">
-                      {option.timeline}
-                    </p>
-                  </div>
-
                   {/* Benefits */}
                   <div className="mb-3 sm:mb-4">
                     <h4 className="text-xs sm:text-sm font-semibold text-gray-700 mb-2">

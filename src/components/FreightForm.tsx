@@ -25,6 +25,8 @@ export interface FormData {
   readyTime: string;
   selectedDate: Date | null;
   selectedTime: string;
+  userName: string;
+  userEmail:string
 }
 
 const FreightForm = () => {
@@ -43,6 +45,8 @@ const FreightForm = () => {
     readyTime: "",
     selectedDate: null,
     selectedTime: "",
+    userName: "",
+    userEmail:""
   });
 
   const updateFormData = (field: keyof FormData, value: any) => {
@@ -95,11 +99,11 @@ const FreightForm = () => {
         case 4:
           return "Pickup & Delivery Details";
         case 5:
-          return "Container & Cargo Specifications";
+          return "Container & Cargo Type";
         case 6:
           return "Shipment Timeline";
         case 7:
-          return "Schedule Consultation Meeting";
+          return "Book Your Free Freight Call — 15 Minute";
         default:
           return "Freight Logistics Form";
       }
@@ -114,11 +118,11 @@ const FreightForm = () => {
         case 4:
           return "Pickup Location Details";
         case 5:
-          return "Container & Cargo Specifications";
+          return "Container & Cargo Type";
         case 6:
           return "Shipment Timeline";
         case 7:
-          return "Schedule Consultation Meeting";
+          return "Book Your Free Freight Call — 15 Minute";
         default:
           return "Freight Logistics Form";
       }
@@ -127,17 +131,17 @@ const FreightForm = () => {
         case 1:
           return "Choose Your Shipping Solution";
         case 2:
-          return "Select Freight Method";
+          return "Choose Your Shipping Method";
         case 3:
-          return "Choose Service Type";
+          return "Choose Your Service Type";
         case 4:
           return getStep4Title();
         case 5:
-          return "Container & Cargo Specifications";
+          return "Container & Cargo Type";
         case 6:
           return "Shipment Timeline";
         case 7:
-          return "Schedule Consultation Meeting";
+          return "Book Your Free Freight Call — 15 Minute";
         default:
           return "Freight Logistics Form";
       }
@@ -156,9 +160,9 @@ const FreightForm = () => {
         case 4:
           return "Provide pickup and delivery address details";
         case 5:
-          return "Select the container type that best fits your cargo";
+          return "Pick what you believe fits best — your supplier or shipper usually decides the container size. We’ll confirm it for you.";
         case 6:
-          return "Let us know when your shipment will be ready";
+          return "When will your shipment be ready?";
         case 7:
           return "Schedule a consultation to finalize your transportation arrangements";
         default:
@@ -175,11 +179,11 @@ const FreightForm = () => {
         case 4:
           return "Provide pickup location and delivery address details";
         case 5:
-          return "Select the container type that best fits your cargo";
+          return "Pick what you believe fits best — your supplier or shipper usually decides the container size. We’ll confirm it for you.";
         case 6:
-          return "Let us know when your shipment will be ready";
+          return "When will your shipment be ready?";
         case 7:
-          return "Schedule a consultation to finalize your shipping arrangements";
+          return "One-on-one. Expert advice. Fast.";
         default:
           return "Complete your freight logistics requirements";
       }
@@ -188,19 +192,19 @@ const FreightForm = () => {
         case 1:
           return "Select the shipping solution that best fits your logistics needs";
         case 2:
-          return "Choose your preferred freight transportation method";
+          return "Choose between Air or Sea Freight. Not sure? Your assigned advisor will help you decide.";
         case 3:
-          return "Select the service type that matches your requirements";
+          return "FOB, ExWorks, or Door-to-Door — we’ll explain each and help you pick what fits your shipment.";
         case 4:
           return formData.serviceType === "FOB (Freight on Board)"
-            ? "Specify the port where your goods will be loaded"
+            ? "Enter the port where your goods will be loaded onto the vessel."
             : "Provide the location for shipment pickup";
         case 5:
-          return "Select the container type that best fits your cargo";
+          return "Pick what you believe fits best — your supplier or shipper usually decides the container size. We’ll confirm it for you.";
         case 6:
-          return "Let us know when your shipment will be ready";
+          return "When will your shipment be ready?";
         case 7:
-          return "Schedule a consultation to finalize your shipping arrangements";
+          return "One-on-one. Expert advice. Fast.";
         default:
           return "Complete your freight logistics requirements";
       }
@@ -209,7 +213,7 @@ const FreightForm = () => {
 
   const getStep4Title = () => {
     if (formData.serviceType === "FOB (Freight on Board)")
-      return "Port of Loading Details";
+      return "Port of Loading";
     return "Pickup Location Details";
   };
 
@@ -251,9 +255,6 @@ const FreightForm = () => {
 
   const totalSteps = getTotalSteps();
 
-  // Progress indicator calculation
-  const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
       {/* Background Decorative Elements - Responsive positioning */}
@@ -265,74 +266,57 @@ const FreightForm = () => {
 
       <div className="relative z-10 py-6 sm:py-8 md:py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          {/* Header Section - Responsive typography and spacing */}
-          <div className="text-center mb-8 sm:mb-12 md:mb-16">
-            <motion.div
-              initial={{ opacity: 0, y: -30 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-4 sm:mb-6 md:mb-8"
-            >
-              <div className="flex justify-center items-center space-x-2 sm:space-x-3 mb-3 sm:mb-6">
-                <div className="p-2 sm:p-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl sm:rounded-2xl shadow-lg">
-                  <Truck className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+          {/* Header Section - Only show on step 1 */}
+          {currentStep === 1 && (
+            <div className="text-center mb-8 sm:mb-12 md:mb-16">
+              <motion.div
+                initial={{ opacity: 0, y: -30 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 sm:mb-6 md:mb-8"
+              >
+                <div className="flex justify-center items-center space-x-2 sm:space-x-3 mb-3 sm:mb-6">
+                  <div className="p-2 sm:p-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl sm:rounded-2xl shadow-lg">
+                    <Truck className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                    FreightForward
+                  </h1>
                 </div>
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                  FreightForward
-                </h1>
-              </div>
-              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed font-light px-4">
-                Your trusted partner for global logistics solutions. Streamline
-                your shipping operations with our comprehensive freight
-                management platform.
-              </p>
-            </motion.div>
+                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed font-light px-4">
+                  Your trusted partner for global logistics solutions.
+                  Streamline your shipping operations with our comprehensive
+                  freight management platform.
+                </p>
+              </motion.div>
 
-            {/* Feature Icons - Responsive layout */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="flex flex-col sm:flex-row justify-center items-center sm:space-x-4 md:space-x-8 space-y-3 sm:space-y-0 mb-6 sm:mb-8"
-            >
-              <div className="flex items-center space-x-2 text-gray-600">
-                <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                <span className="text-xs sm:text-sm font-medium">
-                  Secure & Reliable
-                </span>
-              </div>
-              <div className="flex items-center space-x-2 text-gray-600">
-                <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
-                <span className="text-xs sm:text-sm font-medium">
-                  Global Network
-                </span>
-              </div>
-              <div className="flex items-center space-x-2 text-gray-600">
-                <Package className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
-                <span className="text-xs sm:text-sm font-medium">
-                  End-to-End Service
-                </span>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Progress Bar - Added for better UX */}
-          <div className="max-w-6xl mx-auto mb-4 sm:mb-6 px-4 sm:px-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs sm:text-sm text-gray-600 font-medium">
-                Step {currentStep} of {totalSteps}
-              </span>
-              <span className="text-xs sm:text-sm text-gray-600 font-medium">
-                {Math.round(progressPercentage)}% Complete
-              </span>
+              {/* Feature Icons - Responsive layout */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="flex flex-col sm:flex-row justify-center items-center sm:space-x-4 md:space-x-8 space-y-3 sm:space-y-0 mb-6 sm:mb-8"
+              >
+                <div className="flex items-center space-x-2 text-gray-600">
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
+                  <span className="text-xs sm:text-sm font-medium">
+                    Secure & Reliable
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2 text-gray-600">
+                  <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+                  <span className="text-xs sm:text-sm font-medium">
+                    Global Network
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2 text-gray-600">
+                  <Package className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
+                  <span className="text-xs sm:text-sm font-medium">
+                    End-to-End Service
+                  </span>
+                </div>
+              </motion.div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
-              <div
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 h-1.5 sm:h-2 rounded-full transition-all duration-300 ease-in-out"
-                style={{ width: `${progressPercentage}%` }}
-              ></div>
-            </div>
-          </div>
-
+          )}
           {/* Step Title and Description - Responsive typography */}
           <div className="text-center mb-6 sm:mb-8">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-2">

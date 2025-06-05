@@ -74,20 +74,6 @@ const StepFive: React.FC<StepFiveProps> = ({
 
   return (
     <div className="space-y-6 sm:space-y-8 px-4 sm:px-6 lg:px-0">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center"
-      >
-        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-          Container & Cargo Specifications
-        </h3>
-        <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto">
-          What size/type of container or cargo fits your shipment?
-        </p>
-      </motion.div>
-
       {/* Container Options */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
         {containerOptions.map((option, index) => (
@@ -147,9 +133,9 @@ const StepFive: React.FC<StepFiveProps> = ({
                   <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
                     {option.title}
                   </h3>
-                  <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 leading-relaxed">
+                  {/* <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 leading-relaxed">
                     {option.description}
-                  </p>
+                  </p> */}
 
                   {/* Specifications */}
                   <div className="space-y-2 sm:space-y-3">

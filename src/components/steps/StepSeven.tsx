@@ -4,107 +4,173 @@ import type React from "react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import type { FormData } from "../FreightForm";
-import { format, addDays } from "date-fns";
+import { format, addDays, getDay } from "date-fns";
 import {
   CalendarDays,
   Clock,
-  Video,
   CheckCircle,
   Users,
   MessageSquare,
+  User,
+  Globe,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface StepSevenProps {
   formData: FormData;
   updateFormData: (field: keyof FormData, value: any) => void;
   onPrev: () => void;
+  onSubmit?: () => void;
+  isSubmitting?: boolean;
+}
+
+interface UserDetails {
+  name: string;
+  email: string;
 }
 
 const StepSeven: React.FC<StepSevenProps> = ({
   formData,
   updateFormData,
   onPrev,
+  onSubmit = () => {},
+  isSubmitting = false,
 }) => {
   const [showTimeSlots, setShowTimeSlots] = useState(false);
+  const [showUserDetails, setShowUserDetails] = useState(false);
+  const [userDetails, setUserDetails] = useState<UserDetails>({
+    name: "",
+    email: "",
+  });
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
-  const getDateRange = () => {
+  // Get available dates (Sunday-Thursday, up to 30 days in advance)
+  const getAvailableDates = () => {
     const today = new Date();
-    switch (formData.readyTime) {
-      case "ready-now":
-        return { from: today, to: addDays(today, 7) };
-      case "1-2-weeks":
-        return { from: addDays(today, 7), to: addDays(today, 14) };
-      case "2-3-weeks":
-        return { from: addDays(today, 14), to: addDays(today, 21) };
-      case "1-month":
-        return { from: addDays(today, 21), to: addDays(today, 30) };
-      default:
-        return { from: today, to: addDays(today, 30) };
-    }
+    const maxDate = addDays(today, 30);
+    return { from: today, to: maxDate };
   };
 
-  const timeSlots = [
-    { time: "09:00 AM", label: "Morning", available: true },
-    { time: "10:00 AM", label: "Morning", available: true },
-    { time: "11:00 AM", label: "Late Morning", available: true },
-    { time: "12:00 PM", label: "Noon", available: false },
-    { time: "01:00 PM", label: "Afternoon", available: true },
-    { time: "02:00 PM", label: "Afternoon", available: true },
-    { time: "03:00 PM", label: "Late Afternoon", available: true },
-    { time: "04:00 PM", label: "Late Afternoon", available: true },
-    { time: "05:00 PM", label: "Evening", available: true },
-  ];
+  // Check if date is available (Sunday-Thursday only)
+  const isDateAvailable = (date: Date) => {
+    const day = getDay(date);
+    // Sunday = 0, Monday = 1, ..., Thursday = 4, Friday = 5, Saturday = 6
+    return day >= 0 && day <= 4; // Sunday to Thursday
+  };
+
+  // Time slots for different regions
+  const getTimeSlots = () => {
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    return [
+      // GCC/Europe slots (AM - early PM)
+      {
+        time: "09:00 AM",
+        label: "GCC/Europe",
+        available: true,
+        region: "GCC/Europe",
+        description: "Morning slot for Middle East & Europe",
+      },
+      {
+        time: "10:30 AM",
+        label: "GCC/Europe",
+        available: true,
+        region: "GCC/Europe",
+        description: "Late morning slot for Middle East & Europe",
+      },
+      {
+        time: "12:00 PM",
+        label: "GCC/Europe",
+        available: true,
+        region: "GCC/Europe",
+        description: "Noon slot for Middle East & Europe",
+      },
+      // USA/Canada slots (PM - early evening)
+      {
+        time: "02:00 PM",
+        label: "USA/Canada",
+        available: true,
+        region: "USA/Canada",
+        description: "Afternoon slot for Americas",
+      },
+      {
+        time: "03:30 PM",
+        label: "USA/Canada",
+        available: true,
+        region: "USA/Canada",
+        description: "Late afternoon slot for Americas",
+      },
+      {
+        time: "05:00 PM",
+        label: "USA/Canada",
+        available: true,
+        region: "USA/Canada",
+        description: "Evening slot for Americas",
+      },
+    ];
+  };
 
   const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
+    if (date && isDateAvailable(date)) {
       updateFormData("selectedDate", date);
       setShowTimeSlots(true);
+      setShowUserDetails(false);
     }
   };
 
   const handleTimeSelect = (time: string) => {
     updateFormData("selectedTime", time);
+    setShowUserDetails(true);
   };
 
-  const handleSubmit = () => {
-    if (formData.selectedDate && formData.selectedTime) {
-      const meetingDate = format(formData.selectedDate, "yyyy-MM-dd");
-      const meetingTime = formData.selectedTime;
-      const meetLink = `https://meet.google.com/new`;
+  const handleUserDetailsChange = (field: keyof UserDetails, value: string) => {
+    setUserDetails((prev) => ({ ...prev, [field]: value }));
+  };
 
-      alert(
-        `🎉 Consultation Meeting Scheduled Successfully!\n\n📅 Date: ${format(
-          formData.selectedDate,
-          "MMMM dd, yyyy"
-        )}\n⏰ Time: ${meetingTime}\n💻 Platform: Google Meet\n🔗 Meeting Link: ${meetLink}\n\n✅ Confirmation email will be sent shortly.\n📋 Meeting agenda and preparation checklist will be provided.\n\nThank you for choosing our freight logistics services!`
-      );
+  const handleFinalSubmit = () => {
+    if (
+      formData.selectedDate &&
+      formData.selectedTime &&
+      userDetails.name &&
+      userDetails.email
+    ) {
+      // Add user details to form data
+      updateFormData("userName", userDetails.name);
+      updateFormData("userEmail", userDetails.email);
+
+      // Show confirmation dialog instead of direct submission
+      setShowConfirmDialog(true);
     }
   };
 
-  const dateRange = getDateRange();
+  const handleConfirmSubmission = () => {
+    setShowConfirmDialog(false);
+    if (onSubmit) {
+      onSubmit();
+    }
+  };
+
+  const isFormComplete =
+    formData.selectedDate &&
+    formData.selectedTime &&
+    userDetails.name &&
+    userDetails.email;
+  const dateRange = getAvailableDates();
+  const timeSlots = getTimeSlots();
 
   return (
     <div className="space-y-6 sm:space-y-8 px-2 sm:px-0">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center"
-      >
-        <div className="inline-flex p-3 sm:p-4 rounded-2xl mb-3 sm:mb-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white">
-          <Video className="w-6 h-6 sm:w-8 sm:h-8" />
-        </div>
-        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-          Schedule Your Consultation Meeting
-        </h3>
-        <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto px-4 sm:px-0">
-          Meet with our freight logistics experts to finalize your shipping
-          arrangements and answer any questions
-        </p>
-      </motion.div>
-
       {/* Meeting Benefits */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -114,7 +180,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
       >
         <h4 className="font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center">
           <Users className="w-5 h-5 mr-2 text-purple-600" />
-          What to Expect in Your Consultation
+          What to Expect in Your 15-Minute Consultation
         </h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <div className="bg-white rounded-lg p-3 sm:p-4">
@@ -165,15 +231,19 @@ const StepSeven: React.FC<StepSevenProps> = ({
               disabled={(date) =>
                 date < dateRange.from ||
                 date > dateRange.to ||
-                date.getDay() === 0 ||
-                date.getDay() === 6
+                !isDateAvailable(date)
               }
-              className="rounded-md border-0 shadow-none w-full [&_.rdp]:w-full [&_.rdp-months]:justify-center [&_.rdp-month]:w-full [&_.rdp-table]:w-full [&_.rdp-cell]:p-1 [&_.rdp-cell]:sm:p-2 [&_.rdp-day]:h-8 [&_.rdp-day]:w-8 [&_.rdp-day]:sm:h-10 [&_.rdp-day]:sm:w-10 [&_.rdp-day]:text-sm [&_.rdp-day]:sm:text-base [&_.rdp-head_cell]:text-xs [&_.rdp-head_cell]:sm:text-sm [&_.rdp-head_cell]:p-1 [&_.rdp-head_cell]:sm:p-2"
+              className="rounded-md border-0 shadow-none w-full [&_.rdp]:w-full [&_.rdp-months]:justify-center [&_.rdp-month]:w-full [&_.rdp-table]:w-full [&_.rdp-cell]:p-1 [&_.rdp-cell]:sm:p-2 [&_.rdp-day]:h-8 [&_.rdp-day]:w-8 [&_.rdp-day]:sm:h-10 [&_.rdp-day]:sm:w-10 [&_.rdp-day]:text-xs [&_.rdp-day]:sm:text-base [&_.rdp-head_cell]:text-xs [&_.rdp-head_cell]:sm:text-sm [&_.rdp-head_cell]:p-1 [&_.rdp-head_cell]:sm:p-2"
             />
           </div>
         </div>
-        <div className="mt-3 sm:mt-4 text-center text-xs sm:text-sm text-gray-500">
-          Available Monday - Friday • Business hours only
+        <div className="mt-3 sm:mt-4 text-center">
+          <div className="text-xs sm:text-sm text-gray-500 mb-2">
+            <strong>Available Days:</strong> Sunday–Thursday
+          </div>
+          <div className="text-xs sm:text-sm text-red-500">
+            <strong>Unavailable:</strong> Friday & Saturday
+          </div>
         </div>
       </motion.div>
 
@@ -193,97 +263,314 @@ const StepSeven: React.FC<StepSevenProps> = ({
               {format(formData.selectedDate, "MMMM dd, yyyy")}
             </span>
           </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
-            {timeSlots.map((slot) => (
-              <Button
-                key={slot.time}
-                variant={
-                  formData.selectedTime === slot.time ? "default" : "outline"
-                }
-                disabled={!slot.available}
-                className={`h-14 sm:h-16 flex flex-col items-center justify-center text-center min-w-0 ${
-                  formData.selectedTime === slot.time
-                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg"
-                    : "hover:bg-blue-50 hover:border-blue-200"
-                } ${!slot.available ? "opacity-50 cursor-not-allowed" : ""}`}
-                onClick={() => slot.available && handleTimeSelect(slot.time)}
-              >
-                <span className="text-sm sm:text-base font-medium leading-tight">
-                  {slot.time}
-                </span>
-                <span className="text-xs opacity-80 leading-tight mt-0.5">
-                  {slot.label}
-                </span>
-              </Button>
-            ))}
+
+          {/* Regional Time Slots */}
+          <div className="space-y-6">
+            {/* GCC/Europe Slots */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                <Globe className="w-4 h-4 mr-2 text-green-600" />
+                GCC/Europe Region (3 slots available)
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {timeSlots
+                  .filter((slot) => slot.region === "GCC/Europe")
+                  .map((slot) => (
+                    <Button
+                      key={slot.time}
+                      variant={
+                        formData.selectedTime === slot.time
+                          ? "default"
+                          : "outline"
+                      }
+                      disabled={!slot.available}
+                      className={`h-12 sm:h-14 md:h-16 flex flex-col items-center justify-center text-center min-w-0 px-1 sm:px-2 ${
+                        formData.selectedTime === slot.time
+                          ? "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg"
+                          : "hover:bg-green-50 hover:border-green-200"
+                      } ${
+                        !slot.available ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
+                      onClick={() =>
+                        slot.available && handleTimeSelect(slot.time)
+                      }
+                    >
+                      <span className="text-sm sm:text-base font-medium leading-tight">
+                        {slot.time}
+                      </span>
+                      <span className="text-xs opacity-80 leading-tight mt-0.5">
+                        {slot.description}
+                      </span>
+                    </Button>
+                  ))}
+              </div>
+            </div>
+
+            {/* USA/Canada Slots */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                <Globe className="w-4 h-4 mr-2 text-blue-600" />
+                USA/Canada Region (3 slots available)
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {timeSlots
+                  .filter((slot) => slot.region === "USA/Canada")
+                  .map((slot) => (
+                    <Button
+                      key={slot.time}
+                      variant={
+                        formData.selectedTime === slot.time
+                          ? "default"
+                          : "outline"
+                      }
+                      disabled={!slot.available}
+                      className={`h-12 sm:h-14 md:h-16 flex flex-col items-center justify-center text-center min-w-0 px-1 sm:px-2 ${
+                        formData.selectedTime === slot.time
+                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg"
+                          : "hover:bg-blue-50 hover:border-blue-200"
+                      } ${
+                        !slot.available ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
+                      onClick={() =>
+                        slot.available && handleTimeSelect(slot.time)
+                      }
+                    >
+                      <span className="text-sm sm:text-base font-medium leading-tight">
+                        {slot.time}
+                      </span>
+                      <span className="text-xs opacity-80 leading-tight mt-0.5">
+                        {slot.description}
+                      </span>
+                    </Button>
+                  ))}
+              </div>
+            </div>
           </div>
-          <div className="mt-3 sm:mt-4 text-center text-xs sm:text-sm text-gray-500">
-            All times are in your local timezone • 30-minute meeting duration
+
+          <div className="mt-4 sm:mt-6 text-center">
+            <div className="text-xs sm:text-sm text-gray-500 mb-1">
+              All times shown in your local timezone · 15-minute call
+            </div>
+            <div className="text-xs text-gray-400">
+              Buffer time: 15–20 minutes between calls
+            </div>
           </div>
         </motion.div>
       )}
 
-      {/* Meeting Summary */}
-      {formData.selectedDate && formData.selectedTime && (
+      {/* User Details Form */}
+      {showUserDetails && formData.selectedTime && (
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border-2 border-green-200 p-4 sm:p-6 md:p-8"
+          className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 md:p-8"
         >
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:space-x-4">
-            <div className="bg-green-500 rounded-full p-2 sm:p-3">
-              <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
+            <User className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-purple-600" />
+            Your Contact Information
+          </h3>
+
+          <div className="space-y-4 sm:space-y-6">
+            <div className="space-y-2">
+              <Label
+                htmlFor="name"
+                className="text-sm font-medium text-gray-700"
+              >
+                Full Name *
+              </Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Enter your full name"
+                value={userDetails.name}
+                onChange={(e) =>
+                  handleUserDetailsChange("name", e.target.value)
+                }
+                className="h-12 text-base"
+                required
+              />
             </div>
-            <div className="flex-1">
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4 text-center sm:text-left">
-                Meeting Summary
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                <div className="bg-white rounded-lg p-3 sm:p-4">
-                  <h4 className="font-medium text-gray-900 mb-1 sm:mb-2">
-                    Date & Time
-                  </h4>
-                  <p className="text-gray-700 font-medium text-sm sm:text-base">
-                    {format(formData.selectedDate, "EEEE, MMMM dd, yyyy")}
-                  </p>
-                  <p className="text-gray-600 text-sm">
-                    {formData.selectedTime} (30 minutes)
-                  </p>
-                </div>
-                <div className="bg-white rounded-lg p-3 sm:p-4">
-                  <h4 className="font-medium text-gray-900 mb-1 sm:mb-2">
-                    Meeting Details
-                  </h4>
-                  <p className="text-gray-700 text-sm sm:text-base">
-                    Google Meet Video Call
-                  </p>
-                  <p className="text-gray-600 text-sm">
-                    Link will be provided via email
-                  </p>
-                </div>
-              </div>
-              <div className="bg-white rounded-lg p-3 sm:p-4">
-                <h4 className="font-medium text-gray-900 mb-1 sm:mb-2">
-                  Preparation Checklist
-                </h4>
-                <ul className="text-xs sm:text-sm text-gray-600 space-y-1">
-                  <li>
-                    ✓ Have your cargo specifications and requirements ready
-                  </li>
-                  <li>
-                    ✓ Prepare any specific questions about shipping routes or
-                    timelines
-                  </li>
-                  <li>✓ Review your selected service options from this form</li>
-                  <li>
-                    ✓ Consider your budget range and any special requirements
-                  </li>
-                </ul>
-              </div>
+
+            <div className="space-y-2">
+              <Label
+                htmlFor="email"
+                className="text-sm font-medium text-gray-700"
+              >
+                Email Address *
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter your email address"
+                value={userDetails.email}
+                onChange={(e) =>
+                  handleUserDetailsChange("email", e.target.value)
+                }
+                className="h-12 text-base"
+                required
+              />
             </div>
           </div>
         </motion.div>
       )}
+
+      {/* Confirmation Dialog */}
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[95vh] overflow-y-auto mx-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-gray-900">
+              Confirm Your Freight Request & Meeting
+            </DialogTitle>
+            <DialogDescription className="text-gray-600">
+              Please review all details before confirming your consultation
+              meeting.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {/* Meeting Details */}
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border-2 border-green-200">
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
+                <CalendarDays className="w-5 h-5 mr-2 text-green-600" />
+                Scheduled Meeting
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="bg-white rounded-lg p-3">
+                  <span className="font-medium text-gray-700">Date:</span>
+                  <div className="text-gray-900 font-medium">
+                    {formData.selectedDate &&
+                      format(formData.selectedDate, "EEEE, MMMM dd, yyyy")}
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg p-3">
+                  <span className="font-medium text-gray-700">Time:</span>
+                  <div className="text-gray-900 font-medium">
+                    {formData.selectedTime} (30 minutes)
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg p-3">
+                  <span className="font-medium text-gray-700">Platform:</span>
+                  <div className="text-gray-900">Google Meet Video Call</div>
+                </div>
+                <div className="bg-white rounded-lg p-3">
+                  <span className="font-medium text-gray-700">
+                    Meeting Link:
+                  </span>
+                  <div className="text-gray-900 text-sm">
+                    Will be sent via email
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Freight Request Summary */}
+            <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+              <h3 className="font-semibold text-gray-900 mb-3">
+                Freight Request Summary
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
+                {formData.shippingType && (
+                  <div className="bg-white rounded-lg p-3">
+                    <span className="font-medium text-gray-700">
+                      Shipping Type:
+                    </span>
+                    <div className="text-gray-900">{formData.shippingType}</div>
+                  </div>
+                )}
+                {formData.freightType && (
+                  <div className="bg-white rounded-lg p-3">
+                    <span className="font-medium text-gray-700">
+                      Freight Type:
+                    </span>
+                    <div className="text-gray-900">{formData.freightType}</div>
+                  </div>
+                )}
+                {formData.serviceType && (
+                  <div className="bg-white rounded-lg p-3">
+                    <span className="font-medium text-gray-700">
+                      Service Type:
+                    </span>
+                    <div className="text-gray-900">{formData.serviceType}</div>
+                  </div>
+                )}
+                {formData.handlingType && (
+                  <div className="bg-white rounded-lg p-3">
+                    <span className="font-medium text-gray-700">
+                      Handling Type:
+                    </span>
+                    <div className="text-gray-900">{formData.handlingType}</div>
+                  </div>
+                )}
+                {formData.packagingHelp && (
+                  <div className="bg-white rounded-lg p-3">
+                    <span className="font-medium text-gray-700">
+                      Packaging Help:
+                    </span>
+                    <div className="text-gray-900">
+                      {formData.packagingHelp}
+                    </div>
+                  </div>
+                )}
+                {formData.locationInput && (
+                  <div className="bg-white rounded-lg p-3">
+                    <span className="font-medium text-gray-700">
+                      Pickup Location:
+                    </span>
+                    <div className="text-gray-900">
+                      {formData.locationInput}
+                    </div>
+                  </div>
+                )}
+                {formData.deliveryAddress && (
+                  <div className="bg-white rounded-lg p-3">
+                    <span className="font-medium text-gray-700">
+                      Delivery Address:
+                    </span>
+                    <div className="text-gray-900">
+                      {formData.deliveryAddress}
+                    </div>
+                  </div>
+                )}
+                {formData.containerType && (
+                  <div className="bg-white rounded-lg p-3">
+                    <span className="font-medium text-gray-700">
+                      Container Type:
+                    </span>
+                    <div className="text-gray-900">
+                      {formData.containerType}
+                    </div>
+                  </div>
+                )}
+                {formData.readyTime && (
+                  <div className="bg-white rounded-lg p-3">
+                    <span className="font-medium text-gray-700">
+                      Ready Time:
+                    </span>
+                    <div className="text-gray-900">{formData.readyTime}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowConfirmDialog(false)}
+              className="w-full sm:w-auto"
+            >
+              Review & Edit
+            </Button>
+            <Button
+              onClick={handleConfirmSubmission}
+              className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Confirm & Schedule Meeting
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Navigation */}
       <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0 pt-4 sm:pt-8">
@@ -295,12 +582,21 @@ const StepSeven: React.FC<StepSevenProps> = ({
           Previous
         </Button>
         <Button
-          onClick={handleSubmit}
-          disabled={!formData.selectedDate || !formData.selectedTime}
+          onClick={handleFinalSubmit}
+          disabled={!isFormComplete || isSubmitting || false}
           className="px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg w-full sm:w-auto"
         >
-          <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-          Confirm Meeting & Complete
+          {isSubmitting ? (
+            <>
+              <div className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              Scheduling...
+            </>
+          ) : (
+            <>
+              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              Schedule Meeting & Complete
+            </>
+          )}
         </Button>
       </div>
     </div>
