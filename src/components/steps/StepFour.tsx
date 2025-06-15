@@ -166,21 +166,6 @@ const StepFour: React.FC<StepFourProps> = ({
         onNext();
       }
     };
-
-    const examplePickups = [
-      "123 Industrial Avenue, Los Angeles, CA 90028",
-      "Warehouse District, Building 5, Miami, FL 33101",
-      "456 Export Street, Houston, TX 77002",
-      "Manufacturing Complex, Seattle, WA 98101",
-    ];
-
-    const exampleDeliveries = [
-      "789 Commerce Blvd, Chicago, IL 60601",
-      "Distribution Center, Dallas, TX 75201",
-      "321 Business Park Dr, Atlanta, GA 30301",
-      "Retail Location, Phoenix, AZ 85001",
-    ];
-
     return (
       <div className="space-y-4 sm:space-y-6 lg:space-y-8 px-2 sm:px-4 lg:px-0">
         {/* Header Section */}
@@ -232,7 +217,7 @@ const StepFour: React.FC<StepFourProps> = ({
             </div>
 
             {/* Pickup Examples */}
-            <div className="bg-gray-50 rounded-lg lg:rounded-xl p-3 sm:p-4 lg:p-6">
+            {/* <div className="bg-gray-50 rounded-lg lg:rounded-xl p-3 sm:p-4 lg:p-6">
               <div className="flex items-start space-x-2 lg:space-x-3">
                 <Info className="w-4 h-4 lg:w-5 lg:h-5 text-blue-600 mt-1 flex-shrink-0" />
                 <div className="min-w-0 flex-1">
@@ -253,7 +238,7 @@ const StepFour: React.FC<StepFourProps> = ({
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </motion.div>
 
@@ -288,7 +273,7 @@ const StepFour: React.FC<StepFourProps> = ({
             </div>
 
             {/* Delivery Examples */}
-            <div className="bg-gray-50 rounded-lg lg:rounded-xl p-3 sm:p-4 lg:p-6">
+            {/* <div className="bg-gray-50 rounded-lg lg:rounded-xl p-3 sm:p-4 lg:p-6">
               <div className="flex items-start space-x-2 lg:space-x-3">
                 <Info className="w-4 h-4 lg:w-5 lg:h-5 text-emerald-600 mt-1 flex-shrink-0" />
                 <div className="min-w-0 flex-1">
@@ -311,7 +296,7 @@ const StepFour: React.FC<StepFourProps> = ({
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </motion.div>
 
@@ -340,12 +325,6 @@ const StepFour: React.FC<StepFourProps> = ({
 
   // Original air-sea flow logic
   const isFOB = formData.serviceType === "FOB (Freight on Board)";
-
-  const getIcon = () => {
-    if (isFOB) return <Ship className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8" />;
-    return <Truck className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8" />;
-  };
-
   const getInputLabel = () => {
     if (isFOB) return "Port of Loading";
     return "Pickup Location";
@@ -356,14 +335,6 @@ const StepFour: React.FC<StepFourProps> = ({
       return "Enter port name (e.g., Port of Shanghai, Port of Rotterdam)";
     return "Enter complete pickup address or location details";
   };
-
-  const getDescription = () => {
-    if (isFOB) {
-      return "Please specify the exact port where your goods will be loaded onto the vessel. Include the port name and country for accurate processing.";
-    }
-    return "Please provide the complete address where we should arrange pickup for your shipment. Include street address, city, state/province, and postal code.";
-  };
-
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateFormData("locationInput", e.target.value);
