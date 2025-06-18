@@ -2,11 +2,18 @@
 
 import type React from "react";
 import { motion } from "framer-motion";
-import { Package, CheckCircle, HelpCircle, ArrowRight } from "lucide-react";
+import {
+  Package,
+  CheckCircle,
+  HelpCircle,
+  ArrowRight,
+  Plane,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FormData {
   shippingType: string;
+  freightType: string;
   packagingHelp: string;
   serviceType: string;
   // Add other form fields as needed
@@ -81,7 +88,6 @@ const StepThree: React.FC<StepThreeProps> = ({
 
     const handleSelect = (optionId: string) => {
       updateFormData("packagingHelp", optionId);
-      // Add a small delay before navigating to the next step
       setTimeout(() => {
         onNext();
       }, 300);
@@ -104,13 +110,11 @@ const StepThree: React.FC<StepThreeProps> = ({
               onClick={() => handleSelect(option.id)}
             >
               <div className="relative bg-white p-4 sm:p-6 lg:p-8 h-full border border-gray-100">
-                {/* Background Gradient */}
                 <div
                   className={`absolute inset-0 bg-gradient-to-br ${option.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}
                 />
 
                 <div className="relative z-10 flex flex-col h-full">
-                  {/* Header */}
                   <div className="flex justify-between items-start mb-4 sm:mb-6">
                     <div
                       className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl transition-all duration-300 ${
@@ -142,7 +146,6 @@ const StepThree: React.FC<StepThreeProps> = ({
                     )}
                   </div>
 
-                  {/* Content */}
                   <div className="flex-grow">
                     <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
                       {option.title}
@@ -151,7 +154,6 @@ const StepThree: React.FC<StepThreeProps> = ({
                       {option.description}
                     </p>
 
-                    {/* Features */}
                     <div className="space-y-1.5 sm:space-y-2">
                       <h4 className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
                         Benefits:
@@ -173,7 +175,6 @@ const StepThree: React.FC<StepThreeProps> = ({
                     </div>
                   </div>
 
-                  {/* Action Indicator */}
                   <div className="mt-4 sm:mt-6 pt-3 sm:pt-4">
                     <div
                       className={`flex items-center justify-center space-x-2 text-xs sm:text-sm font-medium transition-all duration-300 ${
@@ -192,7 +193,6 @@ const StepThree: React.FC<StepThreeProps> = ({
           ))}
         </div>
 
-        {/* Previous button only */}
         <div className="flex justify-start pt-6 sm:pt-8 px-4 sm:px-0">
           <Button
             variant="outline"
@@ -206,55 +206,110 @@ const StepThree: React.FC<StepThreeProps> = ({
     );
   }
 
-  // Air-Sea flow - Service Type Selection
-  const serviceOptions = [
-    {
-      id: "FOB (Freight on Board)",
-      title: "FOB (Freight on Board)",
-      description:
-        "We only manage port-to-port freight. You and/or your supplier are responsible for everything else.",
-      icon: <Package className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />,
-      features: [
-        "Port-to-port shipping only",
-        "Clear handoff at the port",
-        "Best if you have your own agents or in-house team.",
-        "You handle pickup, origin clearance, destination clearance & delivery.",
-      ],
-      gradient: "from-blue-500 to-cyan-500",
-    },
-    {
-      id: "Ex-Works",
-      title: "Ex-Works",
-      description:
-        "We pick up from your supplier’s location and manage everything up to the destination port or airport..",
-      icon: <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />,
-      features: [
-        "Factory or warehouse pickup",
-        "We handle transport to origin port + customs clearance",
-        "Ends at destination port",
-        "Ideal if your supplier provides no logistics help",
-      ],
-      gradient: "from-emerald-500 to-teal-500",
-    },
-    {
-      id: "Door-to-Door",
-      title: "Door-to-Door",
-      description:
-        "We handle everything — pickup, customs, freight, and final delivery. One point of contact from start to finish.",
-      icon: <HelpCircle className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />,
-      features: [
-        "Full logistics coverage",
-        "Pickup to final delivery",
-        "Best for time-sensitive or stress free shipping",
-        "Origin & destination customs clearance",
-      ],
-      gradient: "from-purple-500 to-indigo-500",
-    },
-  ];
+  // Air-Sea flow - Service Type Selection (Hide FOB for Air Freight)
+  const getServiceOptions = () => {
+    const isAirFreight = formData.freightType === "air-freight";
+
+    if (isAirFreight) {
+      // Air freight specific options
+      return [
+        {
+          id: "Ex-Works",
+          title: "Ex-Works (Air Freight)",
+          description:
+            "We collect from your supplier and handle air freight to destination airport. You arrange final delivery from airport.",
+          icon: <Package className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />,
+          features: [
+            "Factory/supplier pickup",
+            "Air freight to destination airport",
+            "Customs clearance at origin",
+            "You handle airport to final destination",
+          ],
+          gradient: "from-emerald-500 to-teal-500",
+          availableFor: ["air-freight"],
+        },
+        {
+          id: "Door-to-Door",
+          title: "Door-to-Door (Air Freight)",
+          description:
+            "Complete air freight service from pickup to final delivery. We handle everything including final delivery from airport.",
+          icon: (
+            <HelpCircle className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+          ),
+          features: [
+            "Complete door-to-door service",
+            "Air freight with final delivery",
+            "Origin & destination customs clearance",
+            "Airport to door delivery included",
+          ],
+          gradient: "from-purple-500 to-indigo-500",
+          availableFor: ["air-freight"],
+        },
+      ];
+    } else {
+      // Sea freight options (existing)
+      const allOptions = [
+        {
+          id: "FOB (Freight on Board)",
+          title: "FOB (Freight on Board)",
+          description:
+            "We only manage port-to-port freight. You and/or your supplier are responsible for everything else.",
+          icon: <Package className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />,
+          features: [
+            "Port-to-port shipping only",
+            "Clear handoff at the port",
+            "Best if you have your own agents or in-house team.",
+            "You handle pickup, origin clearance, destination clearance & delivery.",
+          ],
+          gradient: "from-blue-500 to-cyan-500",
+          availableFor: ["sea-freight"],
+        },
+        {
+          id: "Ex-Works",
+          title: "Ex-Works",
+          description:
+            "We pick up from your supplier's location and manage everything up to the destination port.",
+          icon: (
+            <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+          ),
+          features: [
+            "Factory or warehouse pickup",
+            "We handle transport to origin port + customs clearance",
+            "Ends at destination port",
+            "Ideal if your supplier provides no logistics help",
+          ],
+          gradient: "from-emerald-500 to-teal-500",
+          availableFor: ["sea-freight"],
+        },
+        {
+          id: "Door-to-Door",
+          title: "Door-to-Door",
+          description:
+            "We handle everything — pickup, customs, freight, and final delivery. One point of contact from start to finish.",
+          icon: (
+            <HelpCircle className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+          ),
+          features: [
+            "Full logistics coverage",
+            "Pickup to final delivery",
+            "Best for time-sensitive or stress free shipping",
+            "Origin & destination customs clearance",
+          ],
+          gradient: "from-purple-500 to-indigo-500",
+          availableFor: ["sea-freight"],
+        },
+      ];
+
+      return allOptions.filter((option) =>
+        option.availableFor.includes(formData.freightType)
+      );
+    }
+  };
+
+  const serviceOptions = getServiceOptions();
 
   const handleSelect = (optionId: string) => {
     updateFormData("serviceType", optionId);
-    // Add a small delay before navigating to the next step
     setTimeout(() => {
       onNext();
     }, 300);
@@ -262,7 +317,13 @@ const StepThree: React.FC<StepThreeProps> = ({
 
   return (
     <div className="space-y-6 sm:space-y-8 px-4 sm:px-6 lg:px-0">
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+      <div
+        className={`grid gap-4 sm:gap-6 lg:gap-8 ${
+          serviceOptions.length === 2
+            ? "grid-cols-1 sm:grid-cols-2"
+            : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
+        }`}
+      >
         {serviceOptions.map((option, index) => (
           <motion.div
             key={option.id}
@@ -277,13 +338,11 @@ const StepThree: React.FC<StepThreeProps> = ({
             onClick={() => handleSelect(option.id)}
           >
             <div className="relative bg-white p-4 sm:p-6 lg:p-8 h-full border border-gray-100">
-              {/* Background Gradient */}
               <div
                 className={`absolute inset-0 bg-gradient-to-br ${option.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}
               />
 
               <div className="relative z-10 flex flex-col h-full">
-                {/* Header */}
                 <div className="flex justify-between items-start mb-4 sm:mb-6">
                   <div
                     className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl transition-all duration-300 ${
@@ -315,7 +374,6 @@ const StepThree: React.FC<StepThreeProps> = ({
                   )}
                 </div>
 
-                {/* Content */}
                 <div className="flex-grow">
                   <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
                     {option.title}
@@ -324,7 +382,6 @@ const StepThree: React.FC<StepThreeProps> = ({
                     {option.description}
                   </p>
 
-                  {/* Features */}
                   <div className="space-y-1.5 sm:space-y-2">
                     <h4 className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
                       Key Features:
@@ -346,7 +403,6 @@ const StepThree: React.FC<StepThreeProps> = ({
                   </div>
                 </div>
 
-                {/* Action Indicator */}
                 <div className="mt-4 sm:mt-6 pt-3 sm:pt-4">
                   <div
                     className={`flex items-center justify-center space-x-2 text-xs sm:text-sm font-medium transition-all duration-300 ${
@@ -365,7 +421,6 @@ const StepThree: React.FC<StepThreeProps> = ({
         ))}
       </div>
 
-      {/* Previous button only */}
       <div className="flex justify-start pt-6 sm:pt-8 px-4 sm:px-0">
         <Button
           variant="outline"

@@ -95,8 +95,8 @@ const StepTwo: React.FC<StepTwoProps> = ({
           features: [
             "Most economical",
             "High capacity",
-            "Reliable global coverage",
-            "Direct & indirect routing options",
+            "Reliable global coverage",
+            "Direct / indirect routing",
           ],
           gradient: "from-blue-500 to-cyan-500",
         },
@@ -108,9 +108,9 @@ const StepTwo: React.FC<StepTwoProps> = ({
           icon: <Plane className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />,
           features: [
             "1–7 days transit",
-            "Better suited for pallets",
+            "Better suited for pallets",
             "Global network",
-            "Express delivery for urgent needs",
+            "Urgent delivery options",
           ],
           gradient: "from-indigo-500 to-purple-500",
         },
@@ -133,20 +133,9 @@ const StepTwo: React.FC<StepTwoProps> = ({
   const handleSelect = (optionId: string) => {
     updateFormData(fieldName as keyof FormData, optionId);
     // Add a small delay before navigating to the next step
-    // This gives the user visual feedback that their selection was registered
     setTimeout(() => {
       onNext();
     }, 300);
-  };
-
-  const getNextButtonText = () => {
-    if (
-      formData.shippingType === "customs-inland" ||
-      formData.shippingType === "transport-only"
-    ) {
-      return "Continue to Packaging";
-    }
-    return "Continue to Service Type";
   };
 
   return (

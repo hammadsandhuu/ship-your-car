@@ -72,11 +72,11 @@ const StepSix: React.FC<StepSixProps> = ({
       description: "Shipment preparation will be completed within 2-3 weeks",
       timeline: "Extended preparation period",
       icon: <CalendarDays className="w-8 h-8 sm:w-10 sm:h-10" />,
-      urgency: "planned",
+      urgency: "near-term",
       benefits: ["Better rates", "Optimal scheduling", "Complete preparation"],
       considerations:
         "Allows time for documentation, packaging, and coordination",
-      gradient: "from-blue-500 to-cyan-500",
+      gradient: "from-green-500 to-green-800",
     },
     {
       id: "1-month",
@@ -112,6 +112,8 @@ const StepSix: React.FC<StepSixProps> = ({
         return "text-yellow-600 bg-yellow-50 border-yellow-200";
       case "planned":
         return "text-blue-600 bg-blue-50 border-blue-200";
+      case "near-term":
+        return "text-green-600 bg-green-50 border-green-500";
       default:
         return "text-gray-600 bg-gray-50 border-gray-200";
     }
@@ -194,80 +196,12 @@ const StepSix: React.FC<StepSixProps> = ({
                       {option.urgency}
                     </span>
                   </div>
-
-                  <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 leading-relaxed">
-                    {option.description}
-                  </p>
-                  {/* Benefits */}
-                  <div className="mb-3 sm:mb-4">
-                    <h4 className="text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-                      Benefits:
-                    </h4>
-                    <div className="space-y-1">
-                      {option.benefits.map((benefit, idx) => (
-                        <div key={idx} className="flex items-center space-x-2">
-                          <div
-                            className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                              formData.readyTime === option.id
-                                ? "bg-blue-500"
-                                : "bg-gray-400"
-                            }`}
-                          />
-                          <span className="text-xs sm:text-sm text-gray-600">
-                            {benefit}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Considerations */}
-                <div className="bg-white border border-gray-200 rounded-lg p-3 mt-auto">
-                  <div className="flex items-start space-x-2">
-                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <span className="text-xs sm:text-sm font-medium text-gray-700">
-                        Consideration:{" "}
-                      </span>
-                      <span className="text-xs sm:text-sm text-gray-600">
-                        {option.considerations}
-                      </span>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
           </motion.div>
         ))}
       </div>
-
-      {/* Information Panel */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg sm:rounded-xl p-4 sm:p-6 border border-blue-100"
-      >
-        <div className="flex items-start space-x-3 sm:space-x-4">
-          <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mt-1 flex-shrink-0" />
-          <div>
-            <h4 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">
-              Timeline Planning Tips
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600">
-              <div>
-                <strong>For urgent shipments:</strong> Ensure all documentation,
-                packaging, and customs paperwork is ready
-              </div>
-              <div>
-                <strong>For planned shipments:</strong> Use extra time for rate
-                optimization and comprehensive logistics planning
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
 
       {/* Previous button only */}
       <div className="flex justify-start pt-6 sm:pt-8 px-4 sm:px-0">
