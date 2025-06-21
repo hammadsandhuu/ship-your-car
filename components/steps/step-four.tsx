@@ -251,7 +251,7 @@ const StepFour: React.FC<StepFourProps> = ({
                 placeholder="Enter complete delivery address"
                 value={formData.deliveryAddress}
                 onChange={handleDeliveryChange}
-                className="pl-12 h-14 text-sm border-2 rounded-xl"
+                className="h-14 text-sm border-2 rounded-xl"
                 style={{
                   backgroundColor: "var(--black-6)",
                   borderColor: "var(--black-7)",

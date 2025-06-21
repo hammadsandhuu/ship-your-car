@@ -12,6 +12,7 @@ import StepFive from "./steps/step-five";
 import StepSix from "./steps/step-six";
 import StepSeven from "./steps/step-seven";
 import ProgressBar from "./progress-bar";
+import Image from "next/image";
 
 export interface FormData {
   shippingType: string;
@@ -35,6 +36,9 @@ export interface FormData {
   selectedTime: string;
   userName: string;
   userEmail: string;
+  cbm?: string;
+  weight?: string;
+  volume?: string;
 }
 
 const FreightForm = () => {
@@ -55,7 +59,12 @@ const FreightForm = () => {
     selectedTime: "",
     userName: "",
     userEmail: "",
+    cbm: "",
+    weight: "",
+    volume: "",
   });
+
+  console.log("fomr data", formData);
 
   const updateFormData = (field: keyof FormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -63,6 +72,31 @@ const FreightForm = () => {
 
   const nextStep = () => setCurrentStep((prev) => prev + 1);
   const prevStep = () => setCurrentStep((prev) => prev - 1);
+
+  // Add goToStep function to navigate to specific step
+  const goToStep = (step: number) => {
+    setCurrentStep(step);
+  };
+
+  const getActualStep = () => {
+    if (
+      formData.shippingType === "customs-inland" ||
+      formData.shippingType === "transport-only"
+    ) {
+      // For these types: Step 1 → Step 4 → Step 5 → Step 6 → Step 7
+      const stepMapping = {
+        1: 1, // Service Type
+        2: 4, // Locations (skip to step 4)
+        3: 5, // Container Details
+        4: 6, // Timeline
+        5: 7, // Schedule Meeting
+      };
+      return (
+        stepMapping[currentStep as keyof typeof stepMapping] || currentStep
+      );
+    }
+    return currentStep; // Normal flow for air-sea
+  };
 
   const handleFormSubmit = async () => {
     setIsSubmitting(true);
@@ -96,17 +130,41 @@ const FreightForm = () => {
     }
   };
 
-  const getTotalSteps = () => 7;
+  const getTotalSteps = () => {
+    // For customs-inland and transport-only, show only 5 steps
+    if (
+      formData.shippingType === "customs-inland" ||
+      formData.shippingType === "transport-only"
+    ) {
+      return 5;
+    }
+    // For air-sea, show all 7 steps
+    return 7;
+  };
 
-  const getStepTitles = () => [
-    "Service Type",
-    "Freight/Handling",
-    "Service Options",
-    "Locations",
-    "Container Details",
-    "Timeline",
-    "Schedule Meeting",
-  ];
+  const getStepTitles = () => {
+    if (
+      formData.shippingType === "customs-inland" ||
+      formData.shippingType === "transport-only"
+    ) {
+      return [
+        "Service Type",
+        "Locations",
+        "Container Details",
+        "Timeline",
+        "Schedule Meeting",
+      ];
+    }
+    return [
+      "Service Type",
+      "Freight/Handling",
+      "Service Options",
+      "Locations",
+      "Container Details",
+      "Timeline",
+      "Schedule Meeting",
+    ];
+  };
 
   const getStepTitle = () => {
     const titles = {
@@ -198,13 +256,16 @@ const FreightForm = () => {
       isSubmitting,
     };
 
-    switch (currentStep) {
+    const actualStep = getActualStep();
+
+    switch (actualStep) {
       case 1:
         return (
           <StepOne
             formData={formData}
             updateFormData={updateFormData}
             onNext={nextStep}
+            goToStep={goToStep} // Pass the goToStep function
           />
         );
       case 2:
@@ -272,23 +333,19 @@ const FreightForm = () => {
                         duration: 0.8,
                         ease: "easeOut",
                       }}
-                      className="relative p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-2xl"
-                      style={{ backgroundColor: "var(--primary)" }}
                     >
-                      <Truck
-                        className="w-8 h-8 sm:w-12 sm:h-12"
-                        style={{ color: "var(--black)" }}
+                      <Image
+                        src={"/logo2.png"}
+                        alt={""}
+                        width={100}
+                        height={100}
                       />
-                      <div
-                        className="absolute inset-0 rounded-2xl sm:rounded-3xl opacity-50 animate-pulse"
-                        style={{ backgroundColor: "var(--primary)" }}
-                      ></div>
                     </motion.div>
                     <motion.h1
                       initial={{ opacity: 0, x: 50 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.5, duration: 0.8 }}
-                      className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold"
+                      className="text-6xl font-bold ml-0"
                       style={{ color: "var(--primary)" }}
                     >
                       SABIT
@@ -374,13 +431,17 @@ const FreightForm = () => {
             >
               {/* Title */}
               <h2
-                className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-4 leading-tight ${currentStep === 1 ? "hidden sm:block" : ""}`}
+                className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-4 leading-tight ${
+                  currentStep === 1 ? "hidden sm:block" : ""
+                }`}
                 style={{ color: "var(--white)" }}
               >
                 {getStepTitle()}
               </h2>
               <p
-                className={`text-base sm:text-lg max-w-4xl mx-auto leading-relaxed px-4 ${currentStep === 1 ? "hidden sm:block" : "hidden sm:block"}`}
+                className={`text-base sm:text-lg max-w-4xl mx-auto leading-relaxed px-4 ${
+                  currentStep === 1 ? "hidden sm:block" : "hidden sm:block"
+                }`}
                 style={{ color: "var(--gray-2)" }}
               >
                 {currentStep === 1 ? getStepDescription() : ""}

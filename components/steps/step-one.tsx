@@ -1,17 +1,23 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { motion } from "framer-motion"
-import { Plane, Ship, Truck, ArrowRight } from "lucide-react"
-import type { FormData } from "../freight-form"
+import type React from "react";
+import { motion } from "framer-motion";
+import { Plane, Ship, Truck, ArrowRight } from "lucide-react";
+import type { FormData } from "../freight-form";
 
 interface StepOneProps {
-  formData: FormData
-  updateFormData: (field: keyof FormData, value: any) => void
-  onNext: () => void
+  formData: FormData;
+  updateFormData: (field: keyof FormData, value: any) => void;
+  onNext: () => void;
+  goToStep: (step: number) => void; // Add this prop to navigate to specific step
 }
 
-const StepOne: React.FC<StepOneProps> = ({ formData, updateFormData, onNext }) => {
+const StepOne: React.FC<StepOneProps> = ({
+  formData,
+  updateFormData,
+  onNext,
+  goToStep,
+}) => {
   const options = [
     {
       id: "air-sea",
@@ -56,9 +62,12 @@ const StepOne: React.FC<StepOneProps> = ({ formData, updateFormData, onNext }) =
   ];
 
   const handleSelect = (optionId: string) => {
-    updateFormData("shippingType", optionId)
-    onNext()
-  }
+    updateFormData("shippingType", optionId);
+
+    // For all options, just go to next step
+    // The parent component will handle the step mapping
+    onNext();
+  };
 
   return (
     <div className="space-y-8">
@@ -118,7 +127,7 @@ const StepOne: React.FC<StepOneProps> = ({ formData, updateFormData, onNext }) =
                     <motion.div
                       initial={{ scale: 0, rotate: -180 }}
                       animate={{ scale: 1, rotate: 0 }}
-                      className="w-8 h-8 rounded-full hidden sm:flex items-center justify-center shadow-lg"
+                      className="w-8 h-8 rounded-full flex items-center justify-center shadow-lg"
                       style={{ backgroundColor: "var(--primary)" }}
                     >
                       <svg
@@ -225,11 +234,17 @@ const StepOne: React.FC<StepOneProps> = ({ formData, updateFormData, onNext }) =
         <h4 className="font-semibold mb-2" style={{ color: "var(--white)" }}>
           Need help choosing?
         </h4>
-        <p className="text-sm md:text-base mb-2" style={{ color: "var(--gray-2)" }}>
+        <p
+          className="text-sm md:text-base mb-2"
+          style={{ color: "var(--gray-2)" }}
+        >
           Not sure what those terms mean? We'll help you choose the right one on
           the next screen.
         </p>
-        <p className="text-sm md:text-base mb-2" style={{ color: "var(--gray-2)" }}>
+        <p
+          className="text-sm md:text-base mb-2"
+          style={{ color: "var(--gray-2)" }}
+        >
           Most clients use this for destination clearance and last-mile
           delivery.
         </p>
@@ -239,6 +254,6 @@ const StepOne: React.FC<StepOneProps> = ({ formData, updateFormData, onNext }) =
       </motion.div>
     </div>
   );
-}
+};
 
-export default StepOne
+export default StepOne;

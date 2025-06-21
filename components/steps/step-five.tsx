@@ -10,8 +10,6 @@ import {
   Package,
   Container,
   Ship,
-  Snowflake,
-  Plane,
   Box,
   ArrowRight,
   Weight,
@@ -57,7 +55,7 @@ const StepFive: React.FC<StepFiveProps> = ({
           behavior: "smooth",
           block: "start",
         });
-      }, 300); // Small delay to allow animation to start
+      }, 600); // Increased delay to allow smooth animation to start properly
     }
   }, [isContainerSelected]);
 
@@ -259,198 +257,265 @@ const StepFive: React.FC<StepFiveProps> = ({
         {/* Air Freight Specific Fields - Always show for air freight */}
         {isAirFreight && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="rounded-lg sm:rounded-xl lg:rounded-2xl shadow-lg border p-4 sm:p-6 lg:p-8"
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{
+              duration: 0.8,
+              ease: [0.25, 0.46, 0.45, 0.94],
+              delay: 0.1,
+            }}
+            className="rounded-2xl shadow-lg border p-4 sm:p-6 lg:p-8"
             style={{
               backgroundColor: "var(--black-5)",
               borderColor: "var(--black-6)",
             }}
           >
-            <h3
-              className="text-sm sm:text-base lg:text-lg font-semibold mb-4 lg:mb-6"
-              style={{ color: "var(--white)" }}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.6,
+                delay: 0.3,
+              }}
             >
-              Air Freight Details
-            </h3>
+              <h3
+                className="text-sm sm:text-base lg:text-lg font-semibold mb-4 lg:mb-6"
+                style={{ color: "var(--white)" }}
+              >
+                Air Freight Details
+              </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-              {/* CBM Input */}
-              <div>
-                <Label htmlFor="cbm" className="flex items-center mb-2">
-                  <Box
-                    className="w-4 h-4 mr-2"
-                    style={{ color: "var(--primary)" }}
-                  />
-                  CBM (m³)
-                </Label>
-                <Input
-                  id="cbm"
-                  type="number"
-                  placeholder="e.g., 2.5"
-                  value={formData.cbm || ""}
-                  onChange={handleCBMChange}
-                  className="h-10 sm:h-12 border-2 rounded-lg"
-                  style={{
-                    backgroundColor: "var(--black-6)",
-                    borderColor: "var(--black-7)",
-                    color: "var(--white-2)",
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                {/* CBM Input */}
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.6,
+                    delay: 0.4,
                   }}
-                />
-              </div>
+                >
+                  <Label
+                    htmlFor="cbm"
+                    className="flex items-center mb-2"
+                    style={{ color: "var(--white)" }}
+                  >
+                    <Box
+                      className="w-4 h-4 mr-2"
+                      style={{ color: "var(--primary)" }}
+                    />
+                    CBM (m³)
+                  </Label>
+                  <Input
+                    id="cbm"
+                    type="number"
+                    placeholder="e.g., 2.5"
+                    value={formData.cbm || ""}
+                    onChange={handleCBMChange}
+                    className="text-sm sm:text-base lg:text-lg p-3 lg:p-4 h-10 sm:h-12 lg:h-14 border-2 rounded-xl lg:rounded-xl transition-all duration-300 focus:shadow-lg"
+                    style={{
+                      backgroundColor: "var(--black-6)",
+                      borderColor: "var(--black-7)",
+                      color: "var(--white-2)",
+                    }}
+                  />
+                </motion.div>
 
-              {/* Weight Input */}
-              <div>
-                <Label htmlFor="weight" className="flex items-center mb-2">
-                  <Weight
-                    className="w-4 h-4 mr-2"
-                    style={{ color: "var(--primary)" }}
-                  />
-                  Weight (kg)
-                </Label>
-                <Input
-                  id="weight"
-                  type="number"
-                  placeholder="e.g., 500"
-                  value={formData.weight || ""}
-                  onChange={handleWeightChange}
-                  className="h-10 sm:h-12 border-2 rounded-lg"
-                  style={{
-                    backgroundColor: "var(--black-6)",
-                    borderColor: "var(--black-7)",
-                    color: "var(--white-2)",
+                {/* Weight Input */}
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.6,
+                    delay: 0.5,
                   }}
-                />
-              </div>
+                >
+                  <Label
+                    htmlFor="weight"
+                    className="flex items-center mb-2"
+                    style={{ color: "var(--white)" }}
+                  >
+                    <Weight
+                      className="w-4 h-4 mr-2"
+                      style={{ color: "var(--primary)" }}
+                    />
+                    Weight (kg)
+                  </Label>
+                  <Input
+                    id="weight"
+                    type="number"
+                    placeholder="e.g., 500"
+                    value={formData.weight || ""}
+                    onChange={handleWeightChange}
+                    className="text-sm sm:text-base lg:text-lg p-3 lg:p-4 h-10 sm:h-12 lg:h-14 border-2 rounded-xl lg:rounded-xl transition-all duration-300 focus:shadow-lg"
+                    style={{
+                      backgroundColor: "var(--black-6)",
+                      borderColor: "var(--black-7)",
+                      color: "var(--white-2)",
+                    }}
+                  />
+                </motion.div>
 
-              {/* Volume Input */}
-              <div>
-                <Label htmlFor="volume" className="flex items-center mb-2">
-                  <Ruler
-                    className="w-4 h-4 mr-2"
-                    style={{ color: "var(--primary)" }}
-                  />
-                  Volume (m³)
-                </Label>
-                <Input
-                  id="volume"
-                  type="number"
-                  placeholder="e.g., 3.2"
-                  value={formData.volume || ""}
-                  onChange={handleVolumeChange}
-                  className="h-10 sm:h-12 border-2 rounded-lg"
-                  style={{
-                    backgroundColor: "var(--black-6)",
-                    borderColor: "var(--black-7)",
-                    color: "var(--white-2)",
+                {/* Volume Input */}
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.6,
+                    delay: 0.6,
                   }}
-                />
+                >
+                  <Label
+                    htmlFor="volume"
+                    className="flex items-center mb-2"
+                    style={{ color: "var(--white)" }}
+                  >
+                    <Ruler
+                      className="w-4 h-4 mr-2"
+                      style={{ color: "var(--primary)" }}
+                    />
+                    Volume (m³)
+                  </Label>
+                  <Input
+                    id="volume"
+                    type="number"
+                    placeholder="e.g., 3.2"
+                    value={formData.volume || ""}
+                    onChange={handleVolumeChange}
+                    className="text-sm sm:text-base lg:text-lg p-3 lg:p-4 h-10 sm:h-12 lg:h-14 border-2 rounded-xl lg:rounded-xl transition-all duration-300 focus:shadow-lg"
+                    style={{
+                      backgroundColor: "var(--black-6)",
+                      borderColor: "var(--black-7)",
+                      color: "var(--white-2)",
+                    }}
+                  />
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         )}
 
         {/* Conditionally rendered sections - Only show when container is selected OR it's air freight */}
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {(isContainerSelected || isAirFreight) && (
-            <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
               {/* Shipping Description Section */}
               <motion.div
-                initial={{ opacity: 0, y: 20, height: 0 }}
-                animate={{ opacity: 1, y: 0, height: "auto" }}
-                exit={{ opacity: 0, y: -20, height: 0 }}
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{
-                  duration: 0.6,
-                  ease: "easeInOut",
-                  delay: isAirFreight ? 0.2 : 0.1,
+                  duration: 0.8,
+                  ease: [0.25, 0.46, 0.45, 0.94],
+                  delay: isAirFreight ? 0.2 : 0.2,
                 }}
-                className="rounded-lg sm:rounded-xl lg:rounded-2xl shadow-lg border p-4 sm:p-6 lg:p-8 mt-6 overflow-hidden"
+                className="rounded-2xl shadow-lg border p-4 sm:p-6 lg:p-8 mt-6"
                 style={{
                   backgroundColor: "var(--black-5)",
                   borderColor: "var(--black-6)",
                 }}
               >
-                <Label
-                  htmlFor="shipping-description"
-                  className="text-sm sm:text-base lg:text-lg font-semibold mb-2 lg:mb-3 block"
-                  style={{ color: "var(--white)" }}
-                >
-                  What are you shipping?
-                  <span
-                    className="text-sm font-normal ml-2"
-                    style={{ color: "var(--gray-2)" }}
-                  >
-                    (Optional)
-                  </span>
-                </Label>
-                <Input
-                  id="shipping-description"
-                  type="text"
-                  placeholder="e.g., electronics, furniture, cars, textiles"
-                  value={formData.shippingDescription || ""}
-                  onChange={handleDescriptionChange}
-                  className="text-sm sm:text-base lg:text-lg p-3 lg:p-4 h-10 sm:h-12 lg:h-14 border-2 rounded-xl lg:rounded-xl"
-                  style={{
-                    backgroundColor: "var(--black-6)",
-                    borderColor: "var(--black-7)",
-                    color: "var(--white-2)",
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.6,
+                    delay: isAirFreight ? 0.4 : 0.4,
                   }}
-                />
+                >
+                  <Label
+                    htmlFor="shipping-description"
+                    className="text-sm sm:text-base lg:text-lg font-semibold mb-2 lg:mb-3 block"
+                    style={{ color: "var(--white)" }}
+                  >
+                    What are you shipping?
+                    <span
+                      className="text-sm font-normal ml-2"
+                      style={{ color: "var(--gray-2)" }}
+                    >
+                      (Optional)
+                    </span>
+                  </Label>
+                  <Input
+                    id="shipping-description"
+                    type="text"
+                    placeholder="e.g., electronics, furniture, cars, textiles"
+                    value={formData.shippingDescription || ""}
+                    onChange={handleDescriptionChange}
+                    className="text-sm sm:text-base lg:text-lg p-3 lg:p-4 h-10 sm:h-12 lg:h-14 border-2 rounded-xl lg:rounded-xl transition-all duration-300 focus:shadow-lg"
+                    style={{
+                      backgroundColor: "var(--black-6)",
+                      borderColor: "var(--black-7)",
+                      color: "var(--white-2)",
+                    }}
+                  />
+                </motion.div>
               </motion.div>
 
               {/* Temperature Controlled Section */}
               <motion.div
-                initial={{ opacity: 0, y: 20, height: 0 }}
-                animate={{ opacity: 1, y: 0, height: "auto" }}
-                exit={{ opacity: 0, y: -20, height: 0 }}
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{
-                  duration: 0.6,
-                  ease: "easeInOut",
-                  delay: isAirFreight ? 0.4 : 0.3,
+                  duration: 0.8,
+                  ease: [0.25, 0.46, 0.45, 0.94],
+                  delay: isAirFreight ? 0.4 : 0.4,
                 }}
-                className="rounded-lg sm:rounded-xl lg:rounded-2xl shadow-lg border p-4 sm:p-6 lg:p-8 mt-6 overflow-hidden"
+                className="rounded-2xl  shadow-lg border p-4 sm:p-6 lg:p-8 mt-6"
                 style={{
                   backgroundColor: "var(--black-5)",
                   borderColor: "var(--black-6)",
                 }}
               >
-                <Label
-                  className="text-sm sm:text-base lg:text-lg font-semibold block"
-                  style={{ color: "var(--white)" }}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.6,
+                    delay: isAirFreight ? 0.6 : 0.6,
+                  }}
                 >
-                  Temperature Controlled?
-                  <span
-                    className="text-sm font-normal ml-2"
-                    style={{ color: "var(--gray-2)" }}
+                  <Label
+                    className="text-sm sm:text-base lg:text-lg font-semibold block"
+                    style={{ color: "var(--white)" }}
                   >
-                    (Optional)
-                  </span>
-                </Label>
-                <div className="flex items-center mt-4 space-x-3">
-                  <input
-                    type="checkbox"
-                    id="temperature-controlled"
-                    checked={formData.coldStoragePreference === "yes"}
-                    onChange={(e) =>
-                      handleColdStorageChange(e.target.checked ? "yes" : "")
-                    }
-                    className="h-5 w-5 rounded focus:ring-2"
-                    style={{
-                      accentColor: "var(--primary)",
-                      borderColor: "var(--black-7)",
-                    }}
-                  />
-                  <label
-                    htmlFor="temperature-controlled"
-                    className="text-sm sm:text-base font-medium cursor-pointer"
-                    style={{ color: "var(--white-2)" }}
-                  >
-                    Yes, my cargo requires temperature-controlled shipping
-                  </label>
-                </div>
+                    Temperature Controlled?
+                    <span
+                      className="text-sm font-normal ml-2"
+                      style={{ color: "var(--gray-2)" }}
+                    >
+                      (Optional)
+                    </span>
+                  </Label>
+                  <div className="flex items-center mt-4 space-x-3">
+                    <input
+                      type="checkbox"
+                      id="temperature-controlled"
+                      checked={formData.coldStoragePreference === "yes"}
+                      onChange={(e) =>
+                        handleColdStorageChange(e.target.checked ? "yes" : "")
+                      }
+                      className="h-5 w-5 rounded focus:ring-2 transition-all duration-200"
+                      style={{
+                        accentColor: "var(--primary)",
+                        borderColor: "var(--black-7)",
+                      }}
+                    />
+                    <label
+                      htmlFor="temperature-controlled"
+                      className="text-sm sm:text-base font-medium cursor-pointer transition-colors duration-200 hover:opacity-80"
+                      style={{ color: "var(--white-2)" }}
+                    >
+                      Yes, my cargo requires temperature-controlled shipping
+                    </label>
+                  </div>
+                </motion.div>
               </motion.div>
-            </>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>

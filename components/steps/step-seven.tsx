@@ -149,12 +149,13 @@ const StepSeven: React.FC<StepSevenProps> = ({
     updateFormData("selectedTime", time);
     setShowUserDetails(true);
 
-    // On mobile, scroll to user details after selection
-    if (isMobile) {
-      setTimeout(() => {
-        userDetailsRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
-    }
+    // Scroll to user details for both mobile and desktop
+    setTimeout(() => {
+      userDetailsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 100);
   };
 
   const handleUserDetailsChange = (field: keyof UserDetails, value: string) => {
