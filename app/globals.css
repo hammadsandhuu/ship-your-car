@@ -1,0 +1,467 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Colors */
+:root {
+  --primary: #E3DAC9;
+  --secondary: #2c2c2c;
+
+  --black: #000;
+  --black-2: #121212;
+  --black-3: #555;
+  --black-4: #1d1d1d;
+  --black-5: #343434;
+  --black-6: #262626;
+  --black-7: #555555;
+  --black-13: #666;
+
+  --white: #fff;
+  --white-2: #efefef;
+  --white-3: #e9e9e9;
+  --white-4: #f0f0f0;
+  --white-5: #fbfbfb;
+  --white-6: #d7d7d7;
+
+  --gray: #c2c2c2;
+  --gray-2: #999;
+  --gray-3: #a8a8a8;
+  --gray-4: #f6f6f6;
+  --gray-5: #bbb;
+  --gray-6: #2b2b2b;
+  --gray-7: #b9b9b9;
+  --gray-8: #8e8e8e;
+  --gray-9: #aaa;
+  --gray-10: #7c7c7c;
+  --gray-11: #d9d9d9;
+  --gray-12: #383838;
+  --gray-13: #ccc;
+  --gray-14: #dfdfdf;
+  --gray-15: #c0c0c0;
+
+  --pink: #faede9;
+  --pink-2: #ff9776;
+  --pink-3: #f3ecec;
+  --pink-4: #fffaf0;
+  --pink-5: #e0e3cc;
+
+  --bg-line: #1e1e1e;
+
+  --d-gray: #6a6a6a;
+  --d-black: #1a1a1a;
+  --d-black-2: #171717;
+  --d-black-3: #1a1a1a;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Shimmer animation */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* Toast Styling */
+[data-sonner-toaster] {
+  --normal-bg: var(--black-4) !important;
+  --normal-border: var(--primary) !important;
+  --normal-text: var(--white) !important;
+  --success-bg: var(--black-4) !important;
+  --success-border: var(--primary) !important;
+  --success-text: var(--white) !important;
+  --error-bg: var(--black-4) !important;
+  --error-border: #ff4444 !important;
+  --error-text: var(--white) !important;
+}
+
+[data-sonner-toast] {
+  background-color: var(--black-4) !important;
+  border: 2px solid var(--primary) !important;
+  color: var(--white) !important;
+  border-radius: 12px !important;
+}
+
+[data-sonner-toast][data-type="error"] {
+  border-color: #ff4444 !important;
+}
+
+/* Button consistency */
+.btn-rounded {
+  border-radius: 12px !important;
+}
+
+/* Calendar Styling - ULTIMATE OVERRIDE */
+.rdp,
+.rdp *,
+.rdp *::before,
+.rdp *::after {
+  box-sizing: border-box !important;
+}
+
+.rdp {
+  margin: 0 !important;
+  color: var(--white) !important;
+  background: transparent !important;
+}
+
+/* Calendar Navigation */
+.rdp-nav {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 1rem !important;
+}
+
+.rdp-nav_button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  border-radius: 0.5rem !important;
+  border: 1px solid var(--black-6) !important;
+  background-color: var(--black-5) !important;
+  color: var(--white-2) !important;
+  transition: all 0.2s !important;
+}
+
+.rdp-nav_button:hover {
+  background-color: var(--primary) !important;
+  color: var(--black) !important;
+  border-color: var(--primary) !important;
+}
+
+/* Calendar Caption */
+.rdp-caption {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-bottom: 1rem !important;
+}
+
+.rdp-caption_label {
+  color: var(--white) !important;
+  font-weight: 700 !important;
+  font-size: 1.125rem !important;
+  text-align: center !important;
+}
+
+/* Calendar Header - Days of week */
+.rdp-head_cell {
+  color: var(--white-2) !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  padding: 0.5rem !important;
+  text-align: center !important;
+}
+
+/* Calendar Table */
+.rdp-table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  background: transparent !important;
+}
+
+.rdp-head_row {
+  display: flex !important;
+  width: 100% !important;
+}
+
+.rdp-row {
+  display: flex !important;
+  width: 100% !important;
+  margin-top: 0.5rem !important;
+}
+
+/* Calendar Cells */
+.rdp-cell {
+  flex: 1 !important;
+  padding: 0.125rem !important;
+  text-align: center !important;
+  position: relative !important;
+  background: transparent !important;
+}
+
+/* NUCLEAR OPTION - Override ALL calendar day styles */
+.rdp-day,
+.rdp-day_button,
+button.rdp-day,
+.rdp-cell button,
+.rdp-cell > *,
+[role="gridcell"] button,
+[role="gridcell"] > * {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  border-radius: 50% !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--white) !important;
+  background-color: transparent !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  transition: all 0.2s ease-in-out !important;
+  cursor: pointer !important;
+  position: relative !important;
+  margin: 0 auto !important;
+  box-shadow: none !important;
+}
+
+/* Hover states - PRIMARY BACKGROUND */
+.rdp-day:hover,
+.rdp-day_button:hover,
+button.rdp-day:hover,
+.rdp-cell button:hover,
+[role="gridcell"] button:hover,
+.rdp-day:not(.rdp-day_disabled):not(.rdp-day_outside):hover,
+.rdp-day_button:not(.rdp-day_disabled):not(.rdp-day_outside):hover,
+button.rdp-day:not(.rdp-day_disabled):not(.rdp-day_outside):hover {
+  background-color: var(--primary) !important;
+  background: var(--primary) !important;
+  color: var(--error-border) !important;
+  border-color: var(--primary) !important;
+  transform: scale(1.05) !important;
+  /* box-shadow: 0 4px 12px rgba(201, 243, 29, 0.3) !important; */
+}
+
+/* SELECTED STATES - FORCE GREEN BACKGROUND */
+.rdp-day_selected,
+.rdp-day[aria-selected="true"],
+.rdp-day_button[aria-selected="true"],
+button.rdp-day[aria-selected="true"],
+.rdp-day.rdp-day_selected,
+.rdp-day_button.rdp-day_selected,
+button.rdp-day.rdp-day_selected,
+.rdp-day[data-selected="true"],
+.rdp-day_button[data-selected="true"],
+button.rdp-day[data-selected="true"],
+.rdp-cell button[aria-selected="true"],
+[role="gridcell"] button[aria-selected="true"],
+.rdp-cell button[data-selected="true"],
+[role="gridcell"] button[data-selected="true"] {
+  background-color: var(--primary) !important;
+  background: var(--primary) !important;
+  color: var(--black) !important;
+  border-color: var(--primary) !important;
+  border: 2px solid var(--primary) !important;
+  border-radius: 50% !important;
+  font-weight: 700 !important;
+  /* box-shadow: 0 4px 15px rgba(201, 243, 29, 0.4) !important; */
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+/* Selected hover states */
+.rdp-day_selected:hover,
+.rdp-day[aria-selected="true"]:hover,
+.rdp-day_button[aria-selected="true"]:hover,
+button.rdp-day[aria-selected="true"]:hover,
+.rdp-day[data-selected="true"]:hover,
+.rdp-day_button[data-selected="true"]:hover,
+button.rdp-day[data-selected="true"]:hover {
+  background-color: var(--primary) !important;
+  background: var(--primary) !important;
+  color: var(--black) !important;
+  transform: scale(1.05) !important;
+}
+
+/* ELIMINATE ALL WHITE BACKGROUNDS */
+.rdp *[style*="background"],
+.rdp *[style*="background-color"] {
+  background: var(--primary) !important;
+  background-color: var(--primary) !important;
+}
+
+/* Force override any inline styles */
+.rdp [style*="background: white"],
+.rdp [style*="background-color: white"],
+.rdp [style*="background: #fff"],
+.rdp [style*="background-color: #fff"],
+.rdp [style*="background: rgb(255, 255, 255)"],
+.rdp [style*="background-color: rgb(255, 255, 255)"] {
+  background: var(--primary) !important;
+  background-color: var(--primary) !important;
+}
+
+/* Remove pseudo-elements that might add white backgrounds */
+.rdp-day_selected::before,
+.rdp-day_selected::after,
+.rdp-day[aria-selected="true"]::before,
+.rdp-day[aria-selected="true"]::after,
+.rdp-day[data-selected="true"]::before,
+.rdp-day[data-selected="true"]::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+  background-color: transparent !important;
+}
+
+/* Today's date */
+.rdp-day_today,
+.rdp-day_button.rdp-day_today,
+button.rdp-day.rdp-day_today {
+  background-color: transparent !important;
+  background: transparent !important;
+  color: var(--white) !important;
+  border: 2px solid var(--primary) !important;
+  font-weight: 600 !important;
+}
+
+.rdp-day_today:not(.rdp-day_selected):hover {
+  background-color: var(--primary) !important;
+  background: var(--primary) !important;
+  color: var(--black) !important;
+}
+
+/* Disabled days */
+.rdp-day_disabled,
+.rdp-day_button.rdp-day_disabled,
+button.rdp-day.rdp-day_disabled {
+  color: var(--gray-10) !important;
+  background-color: transparent !important;
+  background: transparent !important;
+  cursor: not-allowed !important;
+  opacity: 0.4 !important;
+}
+
+.rdp-day_disabled:hover {
+  background-color: transparent !important;
+  background: transparent !important;
+  color: var(--gray-10) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Outside month days */
+.rdp-day_outside,
+.rdp-day_button.rdp-day_outside,
+button.rdp-day.rdp-day_outside {
+  color: var(--gray-10) !important;
+  opacity: 0.3 !important;
+  background: transparent !important;
+}
+
+.rdp-day_outside:hover {
+  background-color: transparent !important;
+  background: transparent !important;
+  color: var(--gray-10) !important;
+  transform: none !important;
+}
+
+/* Focus styles */
+.rdp-day:focus,
+.rdp-day_button:focus,
+button.rdp-day:focus {
+  outline: 2px solid var(--primary) !important;
+  outline-offset: 2px !important;
+  background-color: var(--primary) !important;
+  color: var(--black) !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .rdp-day,
+  .rdp-day_button,
+  button.rdp-day {
+    width: 2rem !important;
+    height: 2rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  .rdp-head_cell {
+    font-size: 0.75rem !important;
+    padding: 0.25rem !important;
+  }
+
+  .rdp-nav_button {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+
+  .rdp-caption_label {
+    font-size: 1rem !important;
+  }
+}
+
+/* Animation for selected state */
+@keyframes selectPulse {
+  0% {
+    box-shadow: 0 4px 15px rgba(201, 243, 29, 0.4);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(201, 243, 29, 0.6);
+  }
+  100% {
+    box-shadow: 0 4px 15px rgba(201, 243, 29, 0.4);
+  }
+}
+
+.rdp-day_selected,
+.rdp-day[aria-selected="true"],
+.rdp-day_button[aria-selected="true"],
+button.rdp-day[aria-selected="true"] {
+  animation: selectPulse 2s ease-in-out infinite !important;
+}
+
+/* ULTIMATE NUCLEAR OVERRIDE */
+.calendar-custom .rdp-day_selected,
+.calendar-custom .rdp-day[aria-selected="true"],
+.calendar-custom .rdp-day[data-selected="true"],
+.calendar-custom button[aria-selected="true"],
+.calendar-custom button[data-selected="true"],
+.calendar-custom .rdp-cell button[aria-selected="true"],
+.calendar-custom [role="gridcell"] button[aria-selected="true"] {
+  background-color: var(--primary) !important;
+  background: var(--primary) !important;
+  color: #EEDD82 !important;
+  border: 2px solid var(--primary) !important;
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(227, 218, 201, 0.4) !important;
+
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+/* Remove any nested white backgrounds */
+.calendar-custom .rdp-day_selected *,
+.calendar-custom .rdp-day[aria-selected="true"] *,
+.calendar-custom button[aria-selected="true"] *,
+.calendar-custom .rdp-cell button[aria-selected="true"] *,
+.calendar-custom [role="gridcell"] button[aria-selected="true"] * {
+  background: none !important;
+  background-color: transparent !important;
+  color: var(--black) !important;
+}
+
+/* Force override any remaining white backgrounds */
+.rdp * {
+  background-image: none !important;
+}
+
+.rdp *:not(.rdp-day_disabled):not(.rdp-day_outside) {
+  background-color: transparent !important;
+}
+
+.rdp *[aria-selected="true"],
+.rdp *[data-selected="true"] {
+  background-color: var(--primary) !important;
+  background: var(--primary) !important;
+}
