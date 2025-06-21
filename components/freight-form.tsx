@@ -342,10 +342,7 @@ const FreightForm = () => {
                       />
                     </motion.div>
                     <motion.h1
-                      initial={{ opacity: 0, x: 50 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.5, duration: 0.8 }}
-                      className="text-6xl font-bold ml-0"
+                      className="font-bold text-4xl sm:text-5xl md:text-6xl text-center sm:text-left ml-0"
                       style={{ color: "var(--primary)" }}
                     >
                       SABIT
