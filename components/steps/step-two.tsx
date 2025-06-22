@@ -134,9 +134,7 @@ const StepTwo: React.FC<StepTwoProps> = ({
 
   const handleSelect = (optionId: string) => {
     updateFormData(fieldName as keyof FormData, optionId);
-    setTimeout(() => {
-      onNext();
-    }, 300);
+    onNext();
   };
 
   return (

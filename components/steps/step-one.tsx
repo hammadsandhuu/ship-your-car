@@ -9,7 +9,7 @@ interface StepOneProps {
   formData: FormData;
   updateFormData: (field: keyof FormData, value: any) => void;
   onNext: () => void;
-  goToStep: (step: number) => void; // Add this prop to navigate to specific step
+  goToStep: (step: number) => void;
 }
 
 const StepOne: React.FC<StepOneProps> = ({
@@ -24,7 +24,8 @@ const StepOne: React.FC<StepOneProps> = ({
       title: "International Shipping – Air or Sea",
       description:
         "FOB, ExWorks, or Door-to-Door delivery. You decide — we execute through trusted, vetted freight professionals.",
-      icon: <Ship className="w-12 h-12" />,
+      icon: <Plane className="w-12 h-12" />,
+
       features: [
         "Global Freight (Air & Sea)",
         "Customs Clearance",
@@ -37,7 +38,7 @@ const StepOne: React.FC<StepOneProps> = ({
       title: "Customs & Inland Transport",
       description:
         "Customs clearance and local delivery once your shipment arrives — or first-mile transport if needed.",
-      icon: <Truck className="w-12 h-12" />,
+      icon: <Ship className="w-12 h-12" />,
       features: [
         "Import & Export Clearance",
         "Inland Trucking Options",
@@ -50,12 +51,12 @@ const StepOne: React.FC<StepOneProps> = ({
       title: "Just Transport",
       description:
         "Just need to move the cargo in land? Direct, fast, no extras.",
-      icon: <Plane className="w-12 h-12" />,
+      icon: <Truck className="w-12 h-12" />,
+
       features: [
         "A-to-B Cargo Movement",
         "Flexible Pickup Scheduling",
         "Trailers or Trucks",
-        // "Cost-Effective Options",
       ],
       gradient: "from-purple-500 to-indigo-500",
     },
@@ -63,9 +64,6 @@ const StepOne: React.FC<StepOneProps> = ({
 
   const handleSelect = (optionId: string) => {
     updateFormData("shippingType", optionId);
-
-    // For all options, just go to next step
-    // The parent component will handle the step mapping
     onNext();
   };
 

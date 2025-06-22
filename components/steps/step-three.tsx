@@ -1,64 +1,94 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { motion } from "framer-motion"
-import { Package, CheckCircle, HelpCircle, ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import type React from "react";
+import { motion } from "framer-motion";
+import { Package, CheckCircle, HelpCircle, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 
 interface FormData {
-  shippingType: string
-  freightType: string
-  packagingHelp: string
-  serviceType: string
+  shippingType: string;
+  freightType: string;
+  packagingHelp: string;
+  serviceType: string;
 }
 
 interface StepThreeProps {
-  formData: FormData
-  updateFormData: (field: keyof FormData, value: any) => void
-  onNext: () => void
-  onPrev: () => void
+  formData: FormData;
+  updateFormData: (field: keyof FormData, value: any) => void;
+  onNext: () => void;
+  onPrev: () => void;
 }
 
-const StepThree: React.FC<StepThreeProps> = ({ formData, updateFormData, onNext, onPrev }) => {
+const StepThree: React.FC<StepThreeProps> = ({
+  formData,
+  updateFormData,
+  onNext,
+  onPrev,
+}) => {
+  // Disable smooth scroll on mount to prevent jumpiness
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "auto" });
   }, []);
+
   // Show packaging options for customs-inland and transport-only flows
-  if (formData.shippingType === "customs-inland" || formData.shippingType === "transport-only") {
+  if (
+    formData.shippingType === "customs-inland" ||
+    formData.shippingType === "transport-only"
+  ) {
     const packagingOptions = [
       {
         id: "yes-help",
         title: "Yes, I would like help with packaging",
-        description: "Professional packaging services to ensure your cargo is properly secured and protected",
+        description:
+          "Professional packaging services to ensure your cargo is properly secured and protected",
         icon: <Package className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />,
-        features: ["Professional packaging", "Quality materials", "Export compliance", "Damage protection"],
+        features: [
+          "Professional packaging",
+          "Quality materials",
+          "Export compliance",
+          "Damage protection",
+        ],
         gradient: "from-green-500 to-emerald-500",
       },
       {
         id: "no-help",
         title: "No, I have packaging arranged",
-        description: "You have already arranged packaging and your cargo is ready for transportation",
-        icon: <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />,
-        features: ["Self-arranged", "Ready to ship", "Cost savings", "Full control"],
+        description:
+          "You have already arranged packaging and your cargo is ready for transportation",
+        icon: (
+          <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+        ),
+        features: [
+          "Self-arranged",
+          "Ready to ship",
+          "Cost savings",
+          "Full control",
+        ],
         gradient: "from-blue-500 to-cyan-500",
       },
       {
         id: "not-sure",
         title: "I'm not sure yet",
-        description: "Our experts will assess your cargo and recommend the best packaging solution",
-        icon: <HelpCircle className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />,
-        features: ["Expert assessment", "Custom solution", "Professional advice", "Optimal protection"],
+        description:
+          "Our experts will assess your cargo and recommend the best packaging solution",
+        icon: (
+          <HelpCircle className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+        ),
+        features: [
+          "Expert assessment",
+          "Custom solution",
+          "Professional advice",
+          "Optimal protection",
+        ],
         gradient: "from-purple-500 to-indigo-500",
       },
-    ]
+    ];
 
     const handleSelect = (optionId: string) => {
-      updateFormData("packagingHelp", optionId)
-      setTimeout(() => {
-        onNext()
-      }, 300)
-    }
+      updateFormData("packagingHelp", optionId);
+      onNext();
+    };
 
     return (
       <div className="space-y-6 sm:space-y-8">
@@ -66,13 +96,18 @@ const StepThree: React.FC<StepThreeProps> = ({ formData, updateFormData, onNext,
           {packagingOptions.map((option, index) => (
             <motion.div
               key={option.id}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.15, duration: 0.6 }}
-              className={`group relative overflow-hidden rounded-xl sm:rounded-2xl cursor-pointer transition-all duration-500 hover:scale-[1.02] sm:hover:scale-105 border ${
+              transition={{
+                delay: index * 0.1,
+                duration: 0.3,
+                type: "tween",
+                ease: "easeOut",
+              }}
+              className={`group relative overflow-hidden rounded-xl sm:rounded-2xl cursor-pointer transition-all duration-300 hover:scale-[1.02] border ${
                 formData.packagingHelp === option.id
-                  ? "ring-2 sm:ring-4 ring-opacity-50 shadow-xl sm:shadow-2xl"
-                  : "hover:shadow-xl sm:hover:shadow-2xl shadow-md sm:shadow-lg"
+                  ? "ring-2 sm:ring-4 ring-opacity-50 shadow-xl"
+                  : "hover:shadow-lg shadow-md"
               }`}
               style={
                 {
@@ -88,7 +123,7 @@ const StepThree: React.FC<StepThreeProps> = ({ formData, updateFormData, onNext,
             >
               <div className="relative p-4 sm:p-6 lg:p-8 h-full">
                 <div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500"
+                  className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
                   style={{ backgroundColor: "var(--primary)" }}
                 />
 
@@ -117,6 +152,7 @@ const StepThree: React.FC<StepThreeProps> = ({ formData, updateFormData, onNext,
                       <motion.div
                         initial={{ scale: 0, rotate: -180 }}
                         animate={{ scale: 1, rotate: 0 }}
+                        transition={{ duration: 0.2 }}
                         className="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shadow-lg"
                         style={{ backgroundColor: "var(--primary)" }}
                       >
@@ -222,104 +258,92 @@ const StepThree: React.FC<StepThreeProps> = ({ formData, updateFormData, onNext,
   }
 
   // Air-Sea flow - Service Type Selection
-  const getServiceOptions = () => {
-    const isAirFreight = formData.freightType === "air-freight"
-
-    if (isAirFreight) {
-      return [
-        {
-          id: "Ex-Works",
-          title: "Ex-Works (Air Freight)",
-          description:
-            "We collect from your supplier and handle air freight to destination airport. You arrange final delivery from airport.",
-          icon: <Package className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />,
-          features: [
-            "Goods pickup (e.g. factory, etc.)",
-            "Origin customs & airfreight included",
-            "You handle final customs & delivery",
-          ],
-          gradient: "from-emerald-500 to-teal-500",
-          availableFor: ["air-freight"],
-        },
-        {
-          id: "Door-to-Door",
-          title: "Door-to-Door (Air Freight)",
-          description:
-            "Complete air freight service from pickup to final delivery. We handle everything including final delivery from airport.",
-          icon: (
-            <HelpCircle className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
-          ),
-          features: [
-            "Complete door-to-door service",
-            "Air freight with final delivery",
-            "Airport to door delivery included",
-          ],
-          gradient: "from-purple-500 to-indigo-500",
-          availableFor: ["air-freight"],
-        },
-      ];
-    } else {
-      const allOptions = [
-        {
-          id: "FOB (Freight on Board)",
-          title: "FOB (Freight on Board)",
-          description:
-            "We only manage port-to-port freight. You and/or your supplier are responsible for everything else.",
-          icon: <Package className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />,
-          features: [
-            "Port-to-port shipping only",
-            "Best if you have a in-house team",
-            "You handle pickup, customs & delivery",
-          ],
-          gradient: "from-blue-500 to-cyan-500",
-          availableFor: ["sea-freight"],
-        },
-        {
-          id: "Ex-Works",
-          title: "Ex-Works",
-          description:
-            "We pick up from your supplier's location and manage everything up to the destination port.",
-          icon: (
-            <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
-          ),
-          features: [
-            "Goods pickup (e.g. factory, etc.)",
-            "Origin customs & shipping included",
-            "You handle final customs & delivery",
-          ],
-          gradient: "from-emerald-500 to-teal-500",
-          availableFor: ["sea-freight"],
-        },
-        {
-          id: "Door-to-Door",
-          title: "Door-to-Door",
-          description:
-            "We handle everything — pickup, customs, freight, and final delivery. One point of contact from start to finish.",
-          icon: (
-            <HelpCircle className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
-          ),
-          features: [
-            "Pickup to final delivery",
-            "A to Z full logistics coverage",
-            "Best for stress free shipping",
-          ],
-          gradient: "from-purple-500 to-indigo-500",
-          availableFor: ["sea-freight"],
-        },
-      ];
-
-      return allOptions.filter((option) => option.availableFor.includes(formData.freightType))
-    }
-  }
-
-  const serviceOptions = getServiceOptions()
+  const serviceOptions =
+    formData.freightType === "air-freight"
+      ? [
+          {
+            id: "Ex-Works",
+            title: "Ex-Works (Air Freight)",
+            description:
+              "We collect from your supplier and handle air freight to destination airport. You arrange final delivery from airport.",
+            icon: (
+              <Package className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+            ),
+            features: [
+              "Goods pickup (e.g. factory, etc.)",
+              "Origin customs & airfreight included",
+              "You handle final customs & delivery",
+            ],
+            gradient: "from-emerald-500 to-teal-500",
+          },
+          {
+            id: "Door-to-Door",
+            title: "Door-to-Door (Air Freight)",
+            description:
+              "Complete air freight service from pickup to final delivery. We handle everything including final delivery from airport.",
+            icon: (
+              <HelpCircle className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+            ),
+            features: [
+              "Complete door-to-door service",
+              "Air freight with final delivery",
+              "Airport to door delivery included",
+            ],
+            gradient: "from-purple-500 to-indigo-500",
+          },
+        ]
+      : [
+          {
+            id: "FOB (Freight on Board)",
+            title: "FOB (Freight on Board)",
+            description:
+              "We only manage port-to-port freight. You and/or your supplier are responsible for everything else.",
+            icon: (
+              <Package className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+            ),
+            features: [
+              "Port-to-port shipping only",
+              "Best if you have a in-house team",
+              "You handle pickup, customs & delivery",
+            ],
+            gradient: "from-blue-500 to-cyan-500",
+          },
+          {
+            id: "Ex-Works",
+            title: "Ex-Works",
+            description:
+              "We pick up from your supplier's location and manage everything up to the destination port.",
+            icon: (
+              <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+            ),
+            features: [
+              "Goods pickup (e.g. factory, etc.)",
+              "Origin customs & shipping included",
+              "You handle final customs & delivery",
+            ],
+            gradient: "from-emerald-500 to-teal-500",
+          },
+          {
+            id: "Door-to-Door",
+            title: "Door-to-Door",
+            description:
+              "We handle everything — pickup, customs, freight, and final delivery. One point of contact from start to finish.",
+            icon: (
+              <HelpCircle className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+            ),
+            features: [
+              "Pickup to final delivery",
+              "A to Z full logistics coverage",
+              "Best for stress free shipping",
+            ],
+            gradient: "from-purple-500 to-indigo-500",
+          },
+        ];
 
   const handleSelect = (optionId: string) => {
-    updateFormData("serviceType", optionId)
-    setTimeout(() => {
-      onNext()
-    }, 300)
-  }
+    updateFormData("serviceType", optionId);
+    onNext();
+  };
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -333,13 +357,18 @@ const StepThree: React.FC<StepThreeProps> = ({ formData, updateFormData, onNext,
         {serviceOptions.map((option, index) => (
           <motion.div
             key={option.id}
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.15, duration: 0.6 }}
-            className={`group relative overflow-hidden rounded-xl sm:rounded-2xl cursor-pointer transition-all duration-500 hover:scale-[1.02] sm:hover:scale-105 border ${
+            transition={{
+              delay: index * 0.1,
+              duration: 0.3,
+              type: "tween",
+              ease: "easeOut",
+            }}
+            className={`group relative overflow-hidden rounded-xl sm:rounded-2xl cursor-pointer transition-all duration-300 hover:scale-[1.02] border ${
               formData.serviceType === option.id
-                ? "ring-2 sm:ring-4 ring-opacity-50 shadow-xl sm:shadow-2xl"
-                : "hover:shadow-xl sm:hover:shadow-2xl shadow-md sm:shadow-lg"
+                ? "ring-2 sm:ring-4 ring-opacity-50 shadow-xl"
+                : "hover:shadow-lg shadow-md"
             }`}
             style={
               {
@@ -355,7 +384,7 @@ const StepThree: React.FC<StepThreeProps> = ({ formData, updateFormData, onNext,
           >
             <div className="relative p-6 lg:p-8 h-full">
               <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500"
+                className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
                 style={{ backgroundColor: "var(--primary)" }}
               />
 
@@ -384,6 +413,7 @@ const StepThree: React.FC<StepThreeProps> = ({ formData, updateFormData, onNext,
                     <motion.div
                       initial={{ scale: 0, rotate: -180 }}
                       animate={{ scale: 1, rotate: 0 }}
+                      transition={{ duration: 0.2 }}
                       className="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shadow-lg"
                       style={{ backgroundColor: "var(--primary)" }}
                     >
@@ -485,6 +515,6 @@ const StepThree: React.FC<StepThreeProps> = ({ formData, updateFormData, onNext,
       </div>
     </div>
   );
-}
+};
 
-export default StepThree
+export default StepThree;

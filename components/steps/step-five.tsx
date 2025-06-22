@@ -25,6 +25,12 @@ interface FormData {
   cbm?: string;
   weight?: string;
   volume?: string;
+  // New fields for dimensions and units
+  dimensionLength?: string;
+  dimensionWidth?: string;
+  dimensionHeight?: string;
+  dimensionUnit?: string; // 'cm' or 'inch'
+  weightUnit?: string; // 'kg' or 'lb'
 }
 
 interface StepFiveProps {
@@ -43,28 +49,54 @@ const StepFive: React.FC<StepFiveProps> = ({
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
+
   const detailSectionRef = useRef<HTMLDivElement | null>(null);
   const isAirFreight = formData.freightType === "air-freight";
-
-  // Track if container is selected to show additional fields
   const isContainerSelected =
     formData.containerType && formData.containerType !== "";
 
+  // Initialize default units if not set
   useEffect(() => {
-    // Scroll to detail section when container is selected
+    if (isAirFreight && !formData.dimensionUnit) {
+      updateFormData("dimensionUnit", "cm");
+    }
+    if (isAirFreight && !formData.weightUnit) {
+      updateFormData("weightUnit", "kg");
+    }
+  }, [
+    isAirFreight,
+    formData.dimensionUnit,
+    formData.weightUnit,
+    updateFormData,
+  ]);
+
+  useEffect(() => {
     if (isContainerSelected && detailSectionRef.current) {
-      setTimeout(() => {
-        detailSectionRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }, 600); // Increased delay to allow smooth animation to start properly
+      detailSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }
   }, [isContainerSelected]);
 
+  // Validation function for air freight
+  const isAirFreightDataValid = () => {
+    if (!isAirFreight) return true;
+
+    const hasDimensions =
+      formData.dimensionLength &&
+      formData.dimensionWidth &&
+      formData.dimensionHeight;
+    const hasWeight = formData.weight;
+    const hasVolume = formData.volume;
+
+    // At least one of these should be filled
+    return hasDimensions || hasWeight || hasVolume;
+  };
+
   const getContainerOptions = () => {
     if (isAirFreight) {
-      return []; // Return empty array for air freight to hide container options
+      return [];
     } else {
       return [
         {
@@ -118,16 +150,28 @@ const StepFive: React.FC<StepFiveProps> = ({
     updateFormData("coldStoragePreference", value);
   };
 
-  const handleCBMChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateFormData("cbm", e.target.value);
-  };
-
   const handleWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateFormData("weight", e.target.value);
   };
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateFormData("volume", e.target.value);
+  };
+
+  // New handlers for dimensions
+  const handleDimensionChange = (
+    dimension: "dimensionLength" | "dimensionWidth" | "dimensionHeight",
+    value: string
+  ) => {
+    updateFormData(dimension, value);
+  };
+
+  const handleDimensionUnitChange = (unit: string) => {
+    updateFormData("dimensionUnit", unit);
+  };
+
+  const handleWeightUnitChange = (unit: string) => {
+    updateFormData("weightUnit", unit);
   };
 
   const handleNext = () => {
@@ -281,15 +325,17 @@ const StepFive: React.FC<StepFiveProps> = ({
                 delay: 0.3,
               }}
             >
-              <h3
-                className="text-sm sm:text-base lg:text-lg font-semibold mb-4 lg:mb-6"
-                style={{ color: "var(--white)" }}
-              >
-                Air Freight Details
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-                {/* CBM Input */}
+              <div className="flex items-center justify-between mb-4 lg:mb-6">
+                <h3
+                  className="text-sm sm:text-base lg:text-lg font-semibold"
+                  style={{ color: "var(--white)" }}
+                >
+                  Air Freight Details
+                </h3>
+              </div>
+              {/* Responsive Grid Layout */}
+              <div className="space-y-6 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-6">
+                {/* Dimensions Combined */}
                 <motion.div
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -297,31 +343,110 @@ const StepFive: React.FC<StepFiveProps> = ({
                     duration: 0.6,
                     delay: 0.4,
                   }}
+                  className="space-y-3"
                 >
-                  <Label
-                    htmlFor="cbm"
-                    className="flex items-center mb-2"
-                    style={{ color: "var(--white)" }}
-                  >
-                    <Box
-                      className="w-4 h-4 mr-2"
-                      style={{ color: "var(--primary)" }}
+                  <div className="flex items-center justify-between">
+                    <Label
+                      className="flex items-center text-sm font-medium"
+                      style={{ color: "var(--white)" }}
+                    >
+                      <Ruler
+                        className="w-4 h-4 mr-2"
+                        style={{ color: "var(--primary)" }}
+                      />
+                      Dimensions
+                    </Label>
+
+                    {/* Unit Toggle for Dimensions */}
+                    <div
+                      className="flex rounded-lg p-1"
+                      style={{ backgroundColor: "var(--black-6)" }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => handleDimensionUnitChange("cm")}
+                        className={`px-2 py-1 text-xs rounded-md transition-all duration-200 ${
+                          formData.dimensionUnit === "cm" ? "shadow-sm" : ""
+                        }`}
+                        style={{
+                          backgroundColor:
+                            formData.dimensionUnit === "cm"
+                              ? "var(--primary)"
+                              : "transparent",
+                          color:
+                            formData.dimensionUnit === "cm"
+                              ? "var(--black)"
+                              : "var(--gray-2)",
+                        }}
+                      >
+                        CM
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDimensionUnitChange("inch")}
+                        className={`px-2 py-1 text-xs rounded-md transition-all duration-200 ${
+                          formData.dimensionUnit === "inch" ? "shadow-sm" : ""
+                        }`}
+                        style={{
+                          backgroundColor:
+                            formData.dimensionUnit === "inch"
+                              ? "var(--primary)"
+                              : "transparent",
+                          color:
+                            formData.dimensionUnit === "inch"
+                              ? "var(--black)"
+                              : "var(--gray-2)",
+                        }}
+                      >
+                        IN
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    <Input
+                      type="number"
+                      placeholder="L"
+                      value={formData.dimensionLength || ""}
+                      onChange={(e) =>
+                        handleDimensionChange("dimensionLength", e.target.value)
+                      }
+                      className="text-sm p-2 h-10 border-2 rounded-xl transition-all duration-300 focus:shadow-lg focus:border-opacity-50"
+                      style={{
+                        backgroundColor: "var(--black-6)",
+                        borderColor: "var(--black-7)",
+                        color: "var(--white-2)",
+                      }}
                     />
-                    CBM (m³)
-                  </Label>
-                  <Input
-                    id="cbm"
-                    type="number"
-                    placeholder="e.g., 2.5"
-                    value={formData.cbm || ""}
-                    onChange={handleCBMChange}
-                    className="text-sm sm:text-base lg:text-lg p-3 lg:p-4 h-10 sm:h-12 lg:h-14 border-2 rounded-xl lg:rounded-xl transition-all duration-300 focus:shadow-lg"
-                    style={{
-                      backgroundColor: "var(--black-6)",
-                      borderColor: "var(--black-7)",
-                      color: "var(--white-2)",
-                    }}
-                  />
+                    <Input
+                      type="number"
+                      placeholder="W"
+                      value={formData.dimensionWidth || ""}
+                      onChange={(e) =>
+                        handleDimensionChange("dimensionWidth", e.target.value)
+                      }
+                      className="text-sm p-2 h-10 border-2 rounded-xl transition-all duration-300 focus:shadow-lg focus:border-opacity-50"
+                      style={{
+                        backgroundColor: "var(--black-6)",
+                        borderColor: "var(--black-7)",
+                        color: "var(--white-2)",
+                      }}
+                    />
+                    <Input
+                      type="number"
+                      placeholder="H"
+                      value={formData.dimensionHeight || ""}
+                      onChange={(e) =>
+                        handleDimensionChange("dimensionHeight", e.target.value)
+                      }
+                      className="text-sm p-2 h-10 border-2 rounded-xl transition-all duration-300 focus:shadow-lg focus:border-opacity-50"
+                      style={{
+                        backgroundColor: "var(--black-6)",
+                        borderColor: "var(--black-7)",
+                        color: "var(--white-2)",
+                      }}
+                    />
+                  </div>
                 </motion.div>
 
                 {/* Weight Input */}
@@ -332,25 +457,73 @@ const StepFive: React.FC<StepFiveProps> = ({
                     duration: 0.6,
                     delay: 0.5,
                   }}
+                  className="space-y-3"
                 >
-                  <Label
-                    htmlFor="weight"
-                    className="flex items-center mb-2"
-                    style={{ color: "var(--white)" }}
-                  >
-                    <Weight
-                      className="w-4 h-4 mr-2"
-                      style={{ color: "var(--primary)" }}
-                    />
-                    Weight (kg)
-                  </Label>
+                  <div className="flex items-center justify-between">
+                    <Label
+                      htmlFor="weight"
+                      className="flex items-center text-sm font-medium"
+                      style={{ color: "var(--white)" }}
+                    >
+                      <Weight
+                        className="w-4 h-4 mr-2"
+                        style={{ color: "var(--primary)" }}
+                      />
+                      Weight
+                    </Label>
+
+                    {/* Unit Toggle for Weight */}
+                    <div
+                      className="flex rounded-lg p-1"
+                      style={{ backgroundColor: "var(--black-6)" }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => handleWeightUnitChange("kg")}
+                        className={`px-2 py-1 text-xs rounded-md transition-all duration-200 ${
+                          formData.weightUnit === "kg" ? "shadow-sm" : ""
+                        }`}
+                        style={{
+                          backgroundColor:
+                            formData.weightUnit === "kg"
+                              ? "var(--primary)"
+                              : "transparent",
+                          color:
+                            formData.weightUnit === "kg"
+                              ? "var(--black)"
+                              : "var(--gray-2)",
+                        }}
+                      >
+                        KG
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleWeightUnitChange("lb")}
+                        className={`px-2 py-1 text-xs rounded-md transition-all duration-200 ${
+                          formData.weightUnit === "lb" ? "shadow-sm" : ""
+                        }`}
+                        style={{
+                          backgroundColor:
+                            formData.weightUnit === "lb"
+                              ? "var(--primary)"
+                              : "transparent",
+                          color:
+                            formData.weightUnit === "lb"
+                              ? "var(--black)"
+                              : "var(--gray-2)",
+                        }}
+                      >
+                        LB
+                      </button>
+                    </div>
+                  </div>
                   <Input
                     id="weight"
                     type="number"
-                    placeholder="e.g., 500"
+                    placeholder="500"
                     value={formData.weight || ""}
                     onChange={handleWeightChange}
-                    className="text-sm sm:text-base lg:text-lg p-3 lg:p-4 h-10 sm:h-12 lg:h-14 border-2 rounded-xl lg:rounded-xl transition-all duration-300 focus:shadow-lg"
+                    className="text-sm p-2 h-10 border-2 rounded-xl transition-all duration-300 focus:shadow-lg focus:border-opacity-50 w-full"
                     style={{
                       backgroundColor: "var(--black-6)",
                       borderColor: "var(--black-7)",
@@ -367,13 +540,14 @@ const StepFive: React.FC<StepFiveProps> = ({
                     duration: 0.6,
                     delay: 0.6,
                   }}
+                  className="space-y-3"
                 >
                   <Label
                     htmlFor="volume"
-                    className="flex items-center mb-2"
+                    className="flex items-center text-sm font-medium mt-2"
                     style={{ color: "var(--white)" }}
                   >
-                    <Ruler
+                    <Box
                       className="w-4 h-4 mr-2"
                       style={{ color: "var(--primary)" }}
                     />
@@ -382,10 +556,10 @@ const StepFive: React.FC<StepFiveProps> = ({
                   <Input
                     id="volume"
                     type="number"
-                    placeholder="e.g., 3.2"
+                    placeholder="3.2"
                     value={formData.volume || ""}
                     onChange={handleVolumeChange}
-                    className="text-sm sm:text-base lg:text-lg p-3 lg:p-4 h-10 sm:h-12 lg:h-14 border-2 rounded-xl lg:rounded-xl transition-all duration-300 focus:shadow-lg"
+                    className="text-sm p-2 h-10 border-2 rounded-xl transition-all duration-300 focus:shadow-lg focus:border-opacity-50 w-full"
                     style={{
                       backgroundColor: "var(--black-6)",
                       borderColor: "var(--black-7)",
@@ -394,6 +568,23 @@ const StepFive: React.FC<StepFiveProps> = ({
                   />
                 </motion.div>
               </div>
+
+              {/* Validation Message */}
+              {!isAirFreightDataValid() && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-6 p-4 rounded-xl border"
+                  style={{
+                    backgroundColor: "rgba(239, 68, 68, 0.1)",
+                    borderColor: "rgba(239, 68, 68, 0.3)",
+                  }}
+                >
+                  <p className="text-sm" style={{ color: "#ef4444" }}>
+                    Please fill at least one section above to continue.
+                  </p>
+                </motion.div>
+              )}
             </motion.div>
           </motion.div>
         )}
@@ -432,7 +623,7 @@ const StepFive: React.FC<StepFiveProps> = ({
                 >
                   <Label
                     htmlFor="shipping-description"
-                    className="text-sm sm:text-base lg:text-lg font-semibold mb-2 lg:mb-3 block"
+                    className="text-sm sm:text-base lg:text-lg font-semibold mb-3 block"
                     style={{ color: "var(--white)" }}
                   >
                     What are you shipping?
@@ -449,7 +640,7 @@ const StepFive: React.FC<StepFiveProps> = ({
                     placeholder="e.g., electronics, furniture, cars, textiles"
                     value={formData.shippingDescription || ""}
                     onChange={handleDescriptionChange}
-                    className="text-sm sm:text-base lg:text-lg p-3 lg:p-4 h-10 sm:h-12 lg:h-14 border-2 rounded-xl lg:rounded-xl transition-all duration-300 focus:shadow-lg"
+                    className="text-sm sm:text-base lg:text-lg p-3 lg:p-4 h-12 sm:h-14 lg:h-16 border-2 rounded-xl transition-all duration-300 focus:shadow-lg focus:border-opacity-50"
                     style={{
                       backgroundColor: "var(--black-6)",
                       borderColor: "var(--black-7)",
@@ -468,7 +659,7 @@ const StepFive: React.FC<StepFiveProps> = ({
                   ease: [0.25, 0.46, 0.45, 0.94],
                   delay: isAirFreight ? 0.4 : 0.4,
                 }}
-                className="rounded-2xl  shadow-lg border p-4 sm:p-6 lg:p-8 mt-6"
+                className="rounded-2xl shadow-lg border p-4 sm:p-6 lg:p-8 mt-6"
                 style={{
                   backgroundColor: "var(--black-5)",
                   borderColor: "var(--black-6)",
@@ -483,7 +674,7 @@ const StepFive: React.FC<StepFiveProps> = ({
                   }}
                 >
                   <Label
-                    className="text-sm sm:text-base lg:text-lg font-semibold block"
+                    className="text-sm sm:text-base lg:text-lg font-semibold block mb-4"
                     style={{ color: "var(--white)" }}
                   >
                     Temperature Controlled?
@@ -494,7 +685,7 @@ const StepFive: React.FC<StepFiveProps> = ({
                       (Optional)
                     </span>
                   </Label>
-                  <div className="flex items-center mt-4 space-x-3">
+                  <div className="flex items-center space-x-3">
                     <input
                       type="checkbox"
                       id="temperature-controlled"
@@ -502,7 +693,7 @@ const StepFive: React.FC<StepFiveProps> = ({
                       onChange={(e) =>
                         handleColdStorageChange(e.target.checked ? "yes" : "")
                       }
-                      className="h-5 w-5 rounded focus:ring-2 transition-all duration-200"
+                      className="h-5 w-5 rounded-md focus:ring-2 transition-all duration-200"
                       style={{
                         accentColor: "var(--primary)",
                         borderColor: "var(--black-7)",
@@ -545,10 +736,21 @@ const StepFive: React.FC<StepFiveProps> = ({
         >
           <Button
             onClick={handleNext}
-            className="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-base shadow-lg rounded-xl"
+            disabled={isAirFreight && !isAirFreightDataValid()}
+            className={`w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-base shadow-lg rounded-xl transition-all duration-300 ${
+              isAirFreight && !isAirFreightDataValid()
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:opacity-90"
+            }`}
             style={{
-              backgroundColor: "var(--primary2)",
-              color: "var(--black)",
+              backgroundColor:
+                isAirFreight && !isAirFreightDataValid()
+                  ? "var(--black-6)"
+                  : "var(--primary2)",
+              color:
+                isAirFreight && !isAirFreightDataValid()
+                  ? "var(--gray-2)"
+                  : "var(--black)",
             }}
           >
             {getNextButtonText()}

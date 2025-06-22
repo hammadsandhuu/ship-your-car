@@ -368,13 +368,13 @@ const StepSeven: React.FC<StepSevenProps> = ({
             <div className="mt-3 sm:mt-4 text-center w-full">
               <div
                 className="text-xs sm:text-sm mb-2"
-                style={{ color: "var(--gray-2)" }}
+                style={{ color: "var(--primary)" }}
               >
                 <strong>Available Days:</strong> Sunday–Thursday
               </div>
               <div
                 className="text-xs sm:text-sm"
-                style={{ color: "var(--primary)" }}
+                style={{ color: "var(--gray-2)" }}
               >
                 <strong>Unavailable:</strong> Friday & Saturday
               </div>
@@ -382,8 +382,8 @@ const StepSeven: React.FC<StepSevenProps> = ({
                 <div
                   className="mt-3 p-2 border rounded-xl"
                   style={{
-                    backgroundColor: "var(--primary)",
-                    borderColor: "var(--primary)",
+                    backgroundColor: "var(--primary2)",
+                    borderColor: "var(--primary2)",
                   }}
                 >
                   <p
@@ -481,8 +481,8 @@ const StepSeven: React.FC<StepSevenProps> = ({
                           style={{
                             backgroundColor:
                               formData.selectedTime === slot.time
-                                ? "var(--primary)"
-                                : "var(--black-6)",
+                                ? "var(--primary2)"
+                                : "transparent",
                             borderColor:
                               formData.selectedTime === slot.time
                                 ? "var(--primary)"
@@ -540,8 +540,8 @@ const StepSeven: React.FC<StepSevenProps> = ({
                           style={{
                             backgroundColor:
                               formData.selectedTime === slot.time
-                                ? "var(--primary)"
-                                : "var(--black-6)",
+                                ? "var(--primary2)"
+                                : "transparent",
                             borderColor:
                               formData.selectedTime === slot.time
                                 ? "var(--primary)"

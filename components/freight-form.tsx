@@ -39,12 +39,20 @@ export interface FormData {
   cbm?: string;
   weight?: string;
   volume?: string;
+  // New fields for dimensions and units (for air freight)
+  dimensionLength?: string;
+  dimensionWidth?: string;
+  dimensionHeight?: string;
+  dimensionUnit?: string; // 'cm' or 'inch'
+  weightUnit?: string; // 'kg' or 'lb'
 }
 
 const FreightForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  // Initialize form data with proper defaults
   const [formData, setFormData] = useState<FormData>({
     shippingType: "",
     freightType: "",
@@ -62,9 +70,15 @@ const FreightForm = () => {
     cbm: "",
     weight: "",
     volume: "",
+    // Initialize air freight specific fields
+    dimensionLength: "",
+    dimensionWidth: "",
+    dimensionHeight: "",
+    dimensionUnit: "cm", // Default to cm
+    weightUnit: "kg", // Default to kg
   });
 
-  console.log("fomr data", formData);
+  console.log("form data", formData);
 
   const updateFormData = (field: keyof FormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -83,13 +97,12 @@ const FreightForm = () => {
       formData.shippingType === "customs-inland" ||
       formData.shippingType === "transport-only"
     ) {
-      // For these types: Step 1 → Step 4 → Step 5 → Step 6 → Step 7
       const stepMapping = {
-        1: 1, // Service Type
-        2: 4, // Locations (skip to step 4)
-        3: 5, // Container Details
-        4: 6, // Timeline
-        5: 7, // Schedule Meeting
+        1: 1,
+        2: 4,
+        3: 5,
+        4: 6,
+        5: 7,
       };
       return (
         stepMapping[currentStep as keyof typeof stepMapping] || currentStep
@@ -102,10 +115,12 @@ const FreightForm = () => {
     setIsSubmitting(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.log("Final form data for submission:", formData);
+
       toast({
         title: "🎉 Consultation Scheduled Successfully!",
         description:
-          "We'll send you a calendar invite and call you at the scheduled time.",
+          "We'll send you a calendar invite and call you at the scheduled time. Please check your inbox or spam folder for our message.",
         className: "border-2",
         style: {
           backgroundColor: "var(--black-4)",
@@ -131,14 +146,12 @@ const FreightForm = () => {
   };
 
   const getTotalSteps = () => {
-    // For customs-inland and transport-only, show only 5 steps
     if (
       formData.shippingType === "customs-inland" ||
       formData.shippingType === "transport-only"
     ) {
       return 5;
     }
-    // For air-sea, show all 7 steps
     return 7;
   };
 
@@ -167,13 +180,9 @@ const FreightForm = () => {
   };
 
   const getStepTitle = () => {
-    const isExWorks = formData.serviceType === "Ex-Works";
-
-    const titles = {
+    const baseTitles = {
       "transport-only": [
         "What Do You Need Help With Today?",
-        "Cargo Handling Requirements",
-        "Packaging Assistance",
         "Pickup & Delivery Details",
         "Container & Cargo Type",
         "Shipment Timeline",
@@ -181,71 +190,74 @@ const FreightForm = () => {
       ],
       "customs-inland": [
         "What Do You Need Help With Today?",
-        "Cargo Handling Requirements",
-        "Packaging Assistance",
-        "Pickup Location Details",
+        "Pickup & Delivery Details",
         "Container & Cargo Type",
         "Shipment Timeline",
         "Schedule Your Customs & Inland Consultation",
       ],
-      exWorks: [
+      "air-sea": [
         "What Do You Need Help With Today?",
-        "Choose Your Shipping Method",
-        "Choose Your Service Type",
-        "Pickup Address & POD",
-        "Pickup Address & Port of Discharge",
-        "Container & Cargo Type",
+        "Freight Type Selection",
+        "Service Type Selection",
+        "",
+        "Cargo Details",
         "Shipment Timeline",
-        "Book Your Free Freight Call — 15 Minutes",
-      ],
-      fob: [
-        "What Do You Need Help With Today?",
-        "Choose Your Shipping Method",
-        "Choose Your Service Type",
-        "Port of Loading & Discharge",
-        "Pickup Address & POD",
-        "Container & Cargo Type",
-        "Shipment Timeline",
-        "Book Your Free Freight Call — 15 Minutes",
+        "Schedule Your Freight Consultation",
       ],
       default: [
         "What Do You Need Help With Today?",
-        "Choose Your Shipping Method",
-        "Choose Your Service Type",
-        "Pickup & Delivery Address",
-        "Container & Cargo Type",
+        "Shipping Method",
+        "Service Type",
+        "Shipping Locations",
+        "Cargo Details",
         "Shipment Timeline",
-        "Schedule Meeting",
+        "Schedule Consultation",
       ],
     };
 
-    if (formData.shippingType === "transport-only") {
-      return (
-        titles["transport-only"][currentStep - 1] || "Freight Logistics Form"
+    // Get the appropriate titles array
+    let titles =
+      baseTitles[formData.shippingType as keyof typeof baseTitles] ||
+      baseTitles.default;
+
+    // Special handling for air-sea step 4 (locations)
+    if (formData.shippingType === "air-sea") {
+      const locationStepTitle =
+        formData.freightType === "air-freight"
+          ? formData.serviceType === "Ex-Works"
+            ? "Pickup Address & Destination Airport"
+            : formData.serviceType === "Door-to-Door"
+            ? "Pickup & Delivery Address"
+            : "Air Freight Locations"
+          : formData.serviceType === "FOB (Freight on Board)"
+          ? "Port of Loading & Port of Discharge"
+          : formData.serviceType === "Ex-Works"
+          ? "Pickup Address & POD"
+          : formData.serviceType === "Door-to-Door"
+          ? "Pickup & Delivery Address"
+          : "Shipping Locations";
+
+      // Create a new array with the location title inserted
+      titles = titles.map((title, index) =>
+        index === 3 ? locationStepTitle : title
       );
+    }
+
+    if (formData.shippingType === "transport-only") {
+      return titles[currentStep - 1] || "Freight Logistics Form";
     }
 
     if (formData.shippingType === "customs-inland") {
-      return (
-        titles["customs-inland"][currentStep - 1] || "Freight Logistics Form"
-      );
+      return titles[currentStep - 1] || "Freight Logistics Form";
     }
 
-    if (isExWorks) {
-      return titles["exWorks"][currentStep - 1] || "Freight Logistics Form";
-    }
-
-    if (formData.serviceType === "FOB (Freight on Board)") {
-      return titles["fob"][currentStep - 1] || "Freight Logistics Form";
-    }
-
-    return titles.default[currentStep - 1] || "Freight Logistics Form";
+    return titles[currentStep - 1] || "Freight Logistics Form";
   };
 
   const getStepDescription = () => {
     const descriptions = {
       "transport-only": [
-        "Shipping via Sea, Air, or Land. Real Freight Advisors. No Bots. No Call Centers. 40+ Years of Experience.",
+        "Shipping via Sea, Air, or Land. 40+ Years of Experience.",
         "Specify any special handling requirements for your cargo",
         "Let us know if you need assistance with packaging",
         "Provide pickup and delivery address details",
@@ -254,7 +266,7 @@ const FreightForm = () => {
         "Let's discuss your transportation requirements",
       ],
       "customs-inland": [
-        "Shipping via Sea, Air, or Land. Real Freight Advisors. No Bots. No Call Centers. 40+ Years of Experience.",
+        "Shipping via Sea, Air, or Land. 40+ Years of Experience.",
         "Specify any special handling requirements for your cargo",
         "Let us know if you need assistance with packaging",
         "Provide pickup location and delivery address details",
@@ -263,7 +275,7 @@ const FreightForm = () => {
         "Expert guidance for customs clearance and inland transport",
       ],
       default: [
-        "Shipping via Sea, Air, or Land. Real Freight Advisors. No Bots. No Call Centers. 40+ Years of Experience.",
+        "Shipping via Sea, Air, or Land. 40+ Years of Experience.",
         "Choose between Air or Sea Freight. Not sure? Your assigned advisor will help you decide.",
         "FOB, ExWorks, or Door-to-Door — we'll explain each and help you pick what fits your shipment.",
         formData.serviceType === "FOB (Freight on Board)"
@@ -295,6 +307,7 @@ const FreightForm = () => {
     };
 
     const actualStep = getActualStep();
+    console.log("actualStep", actualStep);
 
     switch (actualStep) {
       case 1:
@@ -303,7 +316,7 @@ const FreightForm = () => {
             formData={formData}
             updateFormData={updateFormData}
             onNext={nextStep}
-            goToStep={goToStep} // Pass the goToStep function
+            goToStep={goToStep}
           />
         );
       case 2:
