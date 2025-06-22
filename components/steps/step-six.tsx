@@ -10,6 +10,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
 
 interface FormData {
   readyTime: string;
@@ -29,6 +30,9 @@ const StepSix: React.FC<StepSixProps> = ({
   onNext,
   onPrev,
 }) => {
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   const options = [
     {
       id: "ready-now",

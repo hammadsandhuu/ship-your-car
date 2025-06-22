@@ -167,6 +167,8 @@ const FreightForm = () => {
   };
 
   const getStepTitle = () => {
+    const isExWorks = formData.serviceType === "Ex-Works";
+
     const titles = {
       "transport-only": [
         "What Do You Need Help With Today?",
@@ -186,22 +188,58 @@ const FreightForm = () => {
         "Shipment Timeline",
         "Schedule Your Customs & Inland Consultation",
       ],
-      default: [
+      exWorks: [
         "What Do You Need Help With Today?",
         "Choose Your Shipping Method",
         "Choose Your Service Type",
-        formData.serviceType === "FOB (Freight on Board)"
-          ? "Port of Loading & Discharge"
-          : "Pickup & Delivery Address",
+        "Pickup Address & POD",
+        "Pickup Address & Port of Discharge",
         "Container & Cargo Type",
         "Shipment Timeline",
         "Book Your Free Freight Call — 15 Minutes",
       ],
+      fob: [
+        "What Do You Need Help With Today?",
+        "Choose Your Shipping Method",
+        "Choose Your Service Type",
+        "Port of Loading & Discharge",
+        "Pickup Address & POD",
+        "Container & Cargo Type",
+        "Shipment Timeline",
+        "Book Your Free Freight Call — 15 Minutes",
+      ],
+      default: [
+        "What Do You Need Help With Today?",
+        "Choose Your Shipping Method",
+        "Choose Your Service Type",
+        "Pickup & Delivery Address",
+        "Container & Cargo Type",
+        "Shipment Timeline",
+        "Schedule Meeting",
+      ],
     };
 
-    const titleArray =
-      titles[formData.shippingType as keyof typeof titles] || titles.default;
-    return titleArray[currentStep - 1] || "Freight Logistics Form";
+    if (formData.shippingType === "transport-only") {
+      return (
+        titles["transport-only"][currentStep - 1] || "Freight Logistics Form"
+      );
+    }
+
+    if (formData.shippingType === "customs-inland") {
+      return (
+        titles["customs-inland"][currentStep - 1] || "Freight Logistics Form"
+      );
+    }
+
+    if (isExWorks) {
+      return titles["exWorks"][currentStep - 1] || "Freight Logistics Form";
+    }
+
+    if (formData.serviceType === "FOB (Freight on Board)") {
+      return titles["fob"][currentStep - 1] || "Freight Logistics Form";
+    }
+
+    return titles.default[currentStep - 1] || "Freight Logistics Form";
   };
 
   const getStepDescription = () => {
@@ -341,10 +379,7 @@ const FreightForm = () => {
                         height={100}
                       />
                     </motion.div>
-                    <motion.h1
-                      className="font-bold text-4xl sm:text-5xl md:text-6xl text-center sm:text-left ml-0"
-                      style={{ color: "var(--primary)" }}
-                    >
+                    <motion.h1 className="font-bold text-6xl text-left !ml-0 text-white/75">
                       SABIT
                     </motion.h1>
                   </div>

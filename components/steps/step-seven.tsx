@@ -250,7 +250,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
             <div className="px-4 sm:px-6 pb-4 sm:pb-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 <div
-                  className="rounded-lg p-3 sm:p-4"
+                  className="rounded-xl p-3 sm:p-4"
                   style={{
                     backgroundColor: "var(--black-6)",
                   }}
@@ -274,7 +274,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
                   </p>
                 </div>
                 <div
-                  className="rounded-lg p-3 sm:p-4"
+                  className="rounded-xl p-3 sm:p-4"
                   style={{
                     backgroundColor: "var(--black-6)",
                   }}
@@ -297,7 +297,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
                   </p>
                 </div>
                 <div
-                  className="rounded-lg p-3 sm:p-4"
+                  className="rounded-xl p-3 sm:p-4"
                   style={{
                     backgroundColor: "var(--black-6)",
                   }}
@@ -348,8 +348,8 @@ const StepSeven: React.FC<StepSevenProps> = ({
             />
             Select a Meeting Date
           </h3>
-          <div className="flex flex-col items-center">
-            <div className="w-full flex justify-center">
+          <div className="flex flex-col items-center justify-center">
+            <div className="w-fit flex justify-center">
               <Calendar
                 mode="single"
                 selected={formData.selectedDate || undefined}
@@ -380,15 +380,15 @@ const StepSeven: React.FC<StepSevenProps> = ({
               </div>
               {formData.selectedDate && (
                 <div
-                  className="mt-3 p-2 rounded-lg border"
+                  className="mt-3 p-2 border rounded-xl"
                   style={{
-                    backgroundColor: "var(--black-6)",
+                    backgroundColor: "var(--primary)",
                     borderColor: "var(--primary)",
                   }}
                 >
                   <p
                     className="text-sm font-medium"
-                    style={{ color: "var(--primary)" }}
+                    style={{ color: "var(--black-6)" }}
                   >
                     Selected:{" "}
                     {format(formData.selectedDate, "EEEE, MMMM dd, yyyy")}
@@ -469,7 +469,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
                               : "outline"
                           }
                           disabled={!slot.available}
-                          className={`h-10 flex items-center justify-center text-center ${
+                          className={`h-10 flex items-center justify-center text-center rounded-xl ${
                             formData.selectedTime === slot.time
                               ? "shadow-lg"
                               : "hover:opacity-80"
@@ -528,7 +528,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
                               : "outline"
                           }
                           disabled={!slot.available}
-                          className={`h-10 flex items-center justify-center text-center ${
+                          className={`h-10 flex items-center justify-center text-center rounded-xl ${
                             formData.selectedTime === slot.time
                               ? "shadow-lg"
                               : "hover:opacity-80"
@@ -675,7 +675,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
           disabled={!isFormComplete || isSubmitting || false}
           className="px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg w-full sm:w-auto rounded-xl"
           style={{
-            backgroundColor: "var(--primary)",
+            backgroundColor: "var(--primary2)",
             color: "var(--black)",
           }}
         >

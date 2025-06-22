@@ -791,6 +791,9 @@ video {
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
 }
+.\!ml-0 {
+  margin-left: 0px !important;
+}
 .-ml-4 {
   margin-left: -1rem;
 }
@@ -817,9 +820,6 @@ video {
 }
 .mb-8 {
   margin-bottom: 2rem;
-}
-.ml-0 {
-  margin-left: 0px;
 }
 .ml-1 {
   margin-left: 0.25rem;
@@ -1071,6 +1071,12 @@ video {
 .w-px {
   width: 1px;
 }
+.w-\[280px\] {
+  width: 280px;
+}
+.w-fit {
+  width: fit-content;
+}
 .min-w-0 {
   min-width: 0px;
 }
@@ -1112,6 +1118,12 @@ video {
 }
 .max-w-max {
   max-width: max-content;
+}
+.max-w-xs {
+  max-width: 20rem;
+}
+.max-w-\[400px\] {
+  max-width: 400px;
 }
 .flex-1 {
   flex: 1 1 0%;
@@ -1506,6 +1518,10 @@ video {
 .bg-transparent {
   background-color: transparent;
 }
+.bg-red-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(239 68 68 / var(--tw-bg-opacity, 1));
+}
 .bg-gradient-to-r {
   background-image: linear-gradient(to right, var(--tw-gradient-stops));
 }
@@ -1720,9 +1736,9 @@ video {
   font-size: 1.5rem;
   line-height: 2rem;
 }
-.text-6xl {
-  font-size: 3.75rem;
-  line-height: 1;
+.text-4xl {
+  font-size: 2.25rem;
+  line-height: 2.5rem;
 }
 .text-\[0\.8rem\] {
   font-size: 0.8rem;
@@ -1746,6 +1762,10 @@ video {
 .text-xs {
   font-size: 0.75rem;
   line-height: 1rem;
+}
+.text-6xl {
+  font-size: 3.75rem;
+  line-height: 1;
 }
 .font-bold {
   font-weight: 700;
@@ -1822,6 +1842,9 @@ video {
 }
 .text-sidebar-foreground\/70 {
   color: hsl(var(--sidebar-foreground) / 0.7);
+}
+.text-white\/75 {
+  color: rgb(255 255 255 / 0.75);
 }
 .underline-offset-4 {
   text-underline-offset: 4px;
@@ -2071,6 +2094,7 @@ video {
 /* Colors */
 :root {
   --primary: #E3DAC9;
+  --primary2: #c9f31d;
   --secondary: #2c2c2c;
 
   --black: #000;
@@ -3706,6 +3730,10 @@ button.rdp-day[aria-selected="true"] {
     width: auto;
   }
 
+  .sm\:w-\[320px\] {
+    width: 320px;
+  }
+
   .sm\:max-w-sm {
     max-width: 24rem;
   }
@@ -3788,10 +3816,6 @@ button.rdp-day[aria-selected="true"] {
     border-radius: 1rem;
   }
 
-  .sm\:rounded-3xl {
-    border-radius: 1.5rem;
-  }
-
   .sm\:rounded-lg {
     border-radius: var(--radius);
   }
@@ -3866,6 +3890,11 @@ button.rdp-day[aria-selected="true"] {
   .sm\:text-3xl {
     font-size: 1.875rem;
     line-height: 2.25rem;
+  }
+
+  .sm\:text-5xl {
+    font-size: 3rem;
+    line-height: 1;
   }
 
   .sm\:text-base {
@@ -3984,6 +4013,11 @@ button.rdp-day[aria-selected="true"] {
   .md\:text-4xl {
     font-size: 2.25rem;
     line-height: 2.5rem;
+  }
+
+  .md\:text-6xl {
+    font-size: 3.75rem;
+    line-height: 1;
   }
 
   .md\:text-base {

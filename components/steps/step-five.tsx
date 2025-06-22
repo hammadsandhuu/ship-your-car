@@ -40,6 +40,9 @@ const StepFive: React.FC<StepFiveProps> = ({
   onNext,
   onPrev,
 }) => {
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   const detailSectionRef = useRef<HTMLDivElement | null>(null);
   const isAirFreight = formData.freightType === "air-freight";
 
@@ -544,7 +547,7 @@ const StepFive: React.FC<StepFiveProps> = ({
             onClick={handleNext}
             className="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-base shadow-lg rounded-xl"
             style={{
-              backgroundColor: "var(--primary)",
+              backgroundColor: "var(--primary2)",
               color: "var(--black)",
             }}
           >

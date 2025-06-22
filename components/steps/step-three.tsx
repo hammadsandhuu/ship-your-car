@@ -4,6 +4,7 @@ import type React from "react"
 import { motion } from "framer-motion"
 import { Package, CheckCircle, HelpCircle, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useEffect } from "react";
 
 interface FormData {
   shippingType: string
@@ -20,6 +21,9 @@ interface StepThreeProps {
 }
 
 const StepThree: React.FC<StepThreeProps> = ({ formData, updateFormData, onNext, onPrev }) => {
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   // Show packaging options for customs-inland and transport-only flows
   if (formData.shippingType === "customs-inland" || formData.shippingType === "transport-only") {
     const packagingOptions = [

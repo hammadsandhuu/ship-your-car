@@ -155,7 +155,7 @@ const StepFour: React.FC<StepFourProps> = ({
             }
             className="px-8 py-3 text-base disabled:opacity-50 shadow-lg rounded-xl"
             style={{
-              backgroundColor: "var(--primary)",
+              backgroundColor: "var(--primary2)",
               color: "var(--black)",
             }}
           >
@@ -282,7 +282,7 @@ const StepFour: React.FC<StepFourProps> = ({
             }
             className="px-8 py-3 text-base disabled:opacity-50 shadow-lg rounded-xl"
             style={{
-              backgroundColor: "var(--primary)",
+              backgroundColor: "var(--primary2)",
               color: "var(--black)",
             }}
           >
@@ -806,7 +806,7 @@ const StepFour: React.FC<StepFourProps> = ({
           disabled={!isFormValid()}
           className="px-8 py-3 text-base disabled:opacity-50 shadow-lg rounded-xl"
           style={{
-            backgroundColor: "var(--primary)",
+            backgroundColor: "var(--primary2)",
             color: "var(--black)",
           }}
         >

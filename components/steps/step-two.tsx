@@ -1,52 +1,93 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { motion } from "framer-motion"
-import { Ship, Plane, Package, Shield, Thermometer, ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useEffect } from "react";
+import type React from "react";
+import { motion } from "framer-motion";
+import {
+  Ship,
+  Plane,
+  Package,
+  Shield,
+  Thermometer,
+  ArrowRight,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface FormData {
-  shippingType: string
-  freightType: string
-  handlingType: string
+  shippingType: string;
+  freightType: string;
+  handlingType: string;
 }
 
 interface StepTwoProps {
-  formData: FormData
-  updateFormData: (field: keyof FormData, value: any) => void
-  onNext: () => void
-  onPrev: () => void
+  formData: FormData;
+  updateFormData: (field: keyof FormData, value: any) => void;
+  onNext: () => void;
+  onPrev: () => void;
 }
 
-const StepTwo: React.FC<StepTwoProps> = ({ formData, updateFormData, onNext, onPrev }) => {
+const StepTwo: React.FC<StepTwoProps> = ({
+  formData,
+  updateFormData,
+  onNext,
+  onPrev,
+}) => {
+  // 🔝 Scroll to top when this component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   const getOptions = () => {
-    if (formData.shippingType === "customs-inland" || formData.shippingType === "transport-only") {
+    if (
+      formData.shippingType === "customs-inland" ||
+      formData.shippingType === "transport-only"
+    ) {
       return [
         {
           id: "no-special",
           title: "No Special Handling",
-          description: "Standard cargo handling procedures for regular shipments without special requirements",
+          description:
+            "Standard cargo handling procedures for regular shipments without special requirements",
           icon: <Package className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />,
-          features: ["Standard procedures", "Regular handling", "Cost-effective", "Suitable for most cargo"],
+          features: [
+            "Standard procedures",
+            "Regular handling",
+            "Cost-effective",
+            "Suitable for most cargo",
+          ],
           gradient: "from-blue-500 to-cyan-500",
         },
         {
           id: "fragile",
           title: "Fragile/Sensitive Cargo",
-          description: "Special care and handling for delicate items requiring extra protection during transport",
+          description:
+            "Special care and handling for delicate items requiring extra protection during transport",
           icon: <Shield className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />,
-          features: ["Extra protection", "Careful handling", "Specialized packaging", "Insurance coverage"],
+          features: [
+            "Extra protection",
+            "Careful handling",
+            "Specialized packaging",
+            "Insurance coverage",
+          ],
           gradient: "from-amber-500 to-orange-500",
         },
         {
           id: "temperature",
           title: "Temperature Controlled Cargo",
-          description: "Climate-controlled transportation for temperature-sensitive goods and perishables",
-          icon: <Thermometer className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />,
-          features: ["Temperature monitoring", "Climate control", "Cold chain management", "Real-time tracking"],
+          description:
+            "Climate-controlled transportation for temperature-sensitive goods and perishables",
+          icon: (
+            <Thermometer className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+          ),
+          features: [
+            "Temperature monitoring",
+            "Climate control",
+            "Cold chain management",
+            "Real-time tracking",
+          ],
           gradient: "from-emerald-500 to-teal-500",
         },
-      ]
+      ];
     } else {
       return [
         {
@@ -77,24 +118,26 @@ const StepTwo: React.FC<StepTwoProps> = ({ formData, updateFormData, onNext, onP
         },
       ];
     }
-  }
+  };
 
-  const options = getOptions()
+  const options = getOptions();
   const fieldName =
-    formData.shippingType === "customs-inland" || formData.shippingType === "transport-only"
+    formData.shippingType === "customs-inland" ||
+    formData.shippingType === "transport-only"
       ? "handlingType"
-      : "freightType"
+      : "freightType";
   const selectedValue =
-    formData.shippingType === "customs-inland" || formData.shippingType === "transport-only"
+    formData.shippingType === "customs-inland" ||
+    formData.shippingType === "transport-only"
       ? formData.handlingType
-      : formData.freightType
+      : formData.freightType;
 
   const handleSelect = (optionId: string) => {
-    updateFormData(fieldName as keyof FormData, optionId)
+    updateFormData(fieldName as keyof FormData, optionId);
     setTimeout(() => {
-      onNext()
-    }, 300)
-  }
+      onNext();
+    }, 300);
+  };
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -262,6 +305,6 @@ const StepTwo: React.FC<StepTwoProps> = ({ formData, updateFormData, onNext, onP
       </div>
     </div>
   );
-}
+};
 
-export default StepTwo
+export default StepTwo;
