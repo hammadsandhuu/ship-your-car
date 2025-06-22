@@ -76,7 +76,7 @@ const StepSix: React.FC<StepSixProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 h-full">
       {/* Timeline Options - Compact Mobile Design */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         {options.map((option, index) => (

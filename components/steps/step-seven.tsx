@@ -210,7 +210,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
   const timeSlots = getTimeSlots();
 
   return (
-    <div className="space-y-6 sm:space-y-8 px-2 sm:px-0">
+    <div className="space-y-6 sm:space-y-8 px-2 sm:px-0 h-full">
       {/* Meeting Benefits */}
       <Collapsible
         open={isConsultationOpen}

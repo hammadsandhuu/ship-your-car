@@ -56,7 +56,7 @@ const StepFour: React.FC<StepFourProps> = ({
     };
 
     return (
-      <div className="space-y-6 sm:space-y-8 px-2 sm:px-4 lg:px-0">
+      <div className="space-y-6 sm:space-y-8 px-2 sm:px-4 lg:px-0 h-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           <motion.div
             initial={{ opacity: 0, x: -20 }}

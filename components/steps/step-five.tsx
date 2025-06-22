@@ -185,7 +185,7 @@ const StepFive: React.FC<StepFiveProps> = ({
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-6 sm:space-y-8 h-full">
       {/* Container/Cargo Options - Only shown for non-air freight */}
       {!isAirFreight && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">

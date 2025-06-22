@@ -138,7 +138,7 @@ const StepTwo: React.FC<StepTwoProps> = ({
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-6 sm:space-y-8 h-full">
       <div
         className={`grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 ${
           options.length === 2

@@ -68,7 +68,7 @@ const StepOne: React.FC<StepOneProps> = ({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 h-full">
       <div className="grid lg:grid-cols-3 gap-4">
         {options.map((option, index) => (
           <motion.div
