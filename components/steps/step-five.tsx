@@ -715,20 +715,7 @@ const StepFive: React.FC<StepFiveProps> = ({
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-4 pt-6 sm:pt-8 px-4 sm:px-0">
-        <Button
-          variant="outline"
-          onClick={onPrev}
-          className="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-base border-2 hover:opacity-80 order-2 sm:order-1 rounded-xl"
-          style={{
-            backgroundColor: "var(--black-5)",
-            borderColor: "var(--black-6)",
-            color: "var(--white-2)",
-          }}
-        >
-          Previous
-        </Button>
-
+      <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6 sm:pt-8 px-4 sm:px-0">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}

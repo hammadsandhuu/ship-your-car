@@ -472,61 +472,32 @@ textarea::placeholder {
   font-style: italic;
 }
 
-/* WebKit browsers */
+
+/* WebKit browsers: Chrome, Safari, Edge */
 ::-webkit-scrollbar {
   width: 12px;
   height: 12px;
 }
+
 ::-webkit-scrollbar-track {
-  background: #1d1d1d;
+  background: #1d1d1d; /* Dark gray track */
   border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb {
-  background-color: #c9f31d;
+  background-color: #c9f31d; /* Bright green-yellow thumb */
   border-radius: 10px;
-  border: 2px solid #1d1d1d;
+  border: 2px solid #1d1d1d; /* Padding using track background */
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #b2da1b;
+  background-color: #b2da1b; /* Slightly darker on hover */
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #c9f31d #1d1d1d;
+  scrollbar-color: #c9f31d #1d1d1d; /* Thumb and track colors */
 }
 
-/* For elements with this class */
-.scrollbar-visible::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
-}
-.scrollbar-visible::-webkit-scrollbar-track {
-  background: #1d1d1d;
-  border-radius: 10px;
-}
-.scrollbar-visible::-webkit-scrollbar-thumb {
-  background-color: #c9f31d;
-  border-radius: 10px;
-  border: 2px solid #1d1d1d;
-}
-.scrollbar-visible::-webkit-scrollbar-thumb:hover {
-  background-color: #b2da1b;
-}
-.scrollbar-visible {
-  scrollbar-width: thin;
-  scrollbar-color: #c9f31d #1d1d1d;
-}
 
-/* Simplebar */
-.simplebar-scrollbar::before {
-  background-color: #c9f31d !important;
-  border-radius: 10px;
-}
-.simplebar-track {
-  background: #1d1d1d;
-}
-.simplebar-track.simplebar-vertical {
-  opacity: 1 !important;
-  visibility: visible !important;
-}

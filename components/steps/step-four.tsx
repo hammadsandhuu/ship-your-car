@@ -135,19 +135,7 @@ const StepFour: React.FC<StepFourProps> = ({
           </motion.div>
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-between gap-4">
-          <Button
-            variant="outline"
-            onClick={onPrev}
-            className="px-8 py-3 text-base border-2 rounded-xl hover:opacity-80"
-            style={{
-              backgroundColor: "var(--black-5)",
-              borderColor: "var(--black-6)",
-              color: "var(--white-2)",
-            }}
-          >
-            Previous
-          </Button>
+        <div className="flex flex-col sm:flex-row justify-end gap-4">
           <Button
             onClick={handleNext}
             disabled={
@@ -262,19 +250,7 @@ const StepFour: React.FC<StepFourProps> = ({
           </motion.div>
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6">
-          <Button
-            variant="outline"
-            onClick={onPrev}
-            className="px-8 py-3 text-base border-2 rounded-xl hover:opacity-80"
-            style={{
-              backgroundColor: "var(--black-5)",
-              borderColor: "var(--black-6)",
-              color: "var(--white-2)",
-            }}
-          >
-            Previous
-          </Button>
+        <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6">
           <Button
             onClick={handleNext}
             disabled={
@@ -788,19 +764,7 @@ const StepFour: React.FC<StepFourProps> = ({
     <div className="space-y-8 px-2 sm:px-4 lg:px-0">
       {isAirFreight ? renderAirFreightFields() : renderSeaFreightFields()}
 
-      <div className="flex flex-col sm:flex-row justify-between gap-4">
-        <Button
-          variant="outline"
-          onClick={onPrev}
-          className="px-8 py-3 text-base border-2 rounded-xl hover:opacity-80"
-          style={{
-            backgroundColor: "var(--black-5)",
-            borderColor: "var(--black-6)",
-            color: "var(--white-2)",
-          }}
-        >
-          Previous
-        </Button>
+      <div className="flex flex-col sm:flex-row justify-end gap-4">
         <Button
           onClick={handleNext}
           disabled={!isFormValid()}

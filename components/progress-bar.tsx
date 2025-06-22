@@ -8,16 +8,24 @@ interface ProgressBarProps {
   currentStep: number;
   totalSteps: number;
   stepTitles: string[];
+  onStepClick?: (step: number) => void;
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({
   currentStep,
   totalSteps,
   stepTitles,
+  onStepClick,
 }) => {
   // Ensure currentStep is within valid bounds
   const validCurrentStep = Math.max(1, Math.min(currentStep, totalSteps));
   const progressPercentage = (validCurrentStep / totalSteps) * 100;
+
+  const handleStepClick = (stepNum: number) => {
+    if (stepNum <= validCurrentStep && onStepClick) {
+      onStepClick(stepNum);
+    }
+  };
 
   return (
     <>
@@ -141,6 +149,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
                     const stepNum = index + 1;
                     const isCompleted = stepNum < validCurrentStep;
                     const isCurrent = stepNum === validCurrentStep;
+                    const isClickable = stepNum <= validCurrentStep;
 
                     return (
                       <motion.div
@@ -151,7 +160,11 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
                           opacity: isCurrent || isCompleted ? 1 : 0.5,
                         }}
                         transition={{ duration: 0.3 }}
-                        className="relative flex items-center justify-center w-10 h-10 rounded-xl border-2 transition-all duration-300"
+                        className={`relative flex items-center justify-center w-10 h-10 rounded-xl border-2 transition-all duration-300 ${
+                          isClickable
+                            ? "cursor-pointer hover:scale-105"
+                            : "cursor-default"
+                        }`}
                         style={{
                           backgroundColor:
                             isCompleted || isCurrent
@@ -171,6 +184,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
                             ? "0 2px 10px rgba(201, 243, 29, 0.2)"
                             : "0 2px 8px rgba(0, 0, 0, 0.1)",
                         }}
+                        onClick={() => handleStepClick(stepNum)}
                       >
                         {isCompleted ? (
                           <motion.div

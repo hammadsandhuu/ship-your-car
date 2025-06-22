@@ -25,7 +25,6 @@ const StepOne: React.FC<StepOneProps> = ({
       description:
         "FOB, ExWorks, or Door-to-Door delivery. You decide — we execute through trusted, vetted freight professionals.",
       icon: <Plane className="w-12 h-12" />,
-
       features: [
         "Global Freight (Air & Sea)",
         "Customs Clearance",
@@ -52,7 +51,6 @@ const StepOne: React.FC<StepOneProps> = ({
       description:
         "Just need to move the cargo in land? Direct, fast, no extras.",
       icon: <Truck className="w-12 h-12" />,
-
       features: [
         "A-to-B Cargo Movement",
         "Flexible Pickup Scheduling",

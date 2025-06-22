@@ -238,21 +238,6 @@ const StepThree: React.FC<StepThreeProps> = ({
             </motion.div>
           ))}
         </div>
-
-        <div className="flex justify-start pt-6 sm:pt-8 px-4 sm:px-0">
-          <Button
-            variant="outline"
-            onClick={onPrev}
-            className="px-6 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-base border-2 hover:opacity-80 rounded-xl"
-            style={{
-              backgroundColor: "var(--black-5)",
-              borderColor: "var(--black-6)",
-              color: "var(--white-2)",
-            }}
-          >
-            Previous
-          </Button>
-        </div>
       </div>
     );
   }
@@ -497,21 +482,6 @@ const StepThree: React.FC<StepThreeProps> = ({
             </div>
           </motion.div>
         ))}
-      </div>
-
-      <div className="flex justify-start pt-6 sm:pt-8 px-4 sm:px-0">
-        <Button
-          variant="outline"
-          onClick={onPrev}
-          className="px-6 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-base border-2 hover:opacity-80 rounded-xl"
-          style={{
-            backgroundColor: "var(--black-5)",
-            borderColor: "var(--black-6)",
-            color: "var(--white-2)",
-          }}
-        >
-          Previous
-        </Button>
       </div>
     </div>
   );

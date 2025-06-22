@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Truck, Globe, HeartHandshake, ShieldCheck } from "lucide-react";
+import {
+  Globe,
+  HeartHandshake,
+  ShieldCheck,
+  ChevronDown,
+  ArrowLeft,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import StepOne from "./steps/step-one";
 import StepTwo from "./steps/step-two";
@@ -13,8 +19,7 @@ import StepSix from "./steps/step-six";
 import StepSeven from "./steps/step-seven";
 import ProgressBar from "./progress-bar";
 import Image from "next/image";
-import SimpleBar from "simplebar-react";
-import "simplebar-react/dist/simplebar.min.css";
+import { Button } from "@/components/ui/button";
 
 export interface FormData {
   shippingType: string;
@@ -86,12 +91,37 @@ const FreightForm = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const nextStep = () => setCurrentStep((prev) => prev + 1);
-  const prevStep = () => setCurrentStep((prev) => prev - 1);
+  const nextStep = () => {
+    setCurrentStep((prev) => prev + 1);
+    // Smooth scroll to top when moving to next step
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 100);
+  };
+
+  const prevStep = () => {
+    setCurrentStep((prev) => prev - 1);
+    // Smooth scroll to top when moving to previous step
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 100);
+  };
 
   // Add goToStep function to navigate to specific step
   const goToStep = (step: number) => {
     setCurrentStep(step);
+    // Smooth scroll to top when jumping to a step
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 100);
+  };
+
+  // Mobile scroll down function
+  const scrollToContent = () => {
+    const contentElement = document.getElementById("form-content");
+    if (contentElement) {
+      contentElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   };
 
   const getActualStep = () => {
@@ -339,175 +369,219 @@ const FreightForm = () => {
   };
 
   return (
-    <SimpleBar
-      className="min-h-screen"
-      style={{ backgroundColor: "var(--black)" }}
-    >
-      <div className="min-h-screen" style={{ backgroundColor: "var(--black)" }}>
-        {/* Background Elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div
-            className="absolute top-[10%] left-[5%] w-32 h-32 sm:w-48 sm:h-48 rounded-full opacity-10 blur-3xl animate-pulse"
-            style={{ backgroundColor: "var(--primary)" }}
-          ></div>
-          <div
-            className="absolute top-[30%] right-[10%] w-40 h-40 sm:w-64 sm:h-64 rounded-full opacity-10 blur-3xl animate-pulse delay-1000"
-            style={{ backgroundColor: "var(--primary)" }}
-          ></div>
-          <div
-            className="absolute bottom-[20%] left-[15%] w-36 h-36 sm:w-56 sm:h-56 rounded-full opacity-10 blur-3xl animate-pulse delay-2000"
-            style={{ backgroundColor: "var(--primary)" }}
-          ></div>
-        </div>
+    <div className="min-h-screen" style={{ backgroundColor: "var(--black)" }}>
+      {/* Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div
+          className="absolute top-[10%] left-[5%] w-32 h-32 sm:w-48 sm:h-48 rounded-full opacity-10 blur-3xl animate-pulse"
+          style={{ backgroundColor: "var(--primary)" }}
+        ></div>
+        <div
+          className="absolute top-[30%] right-[10%] w-40 h-40 sm:w-64 sm:h-64 rounded-full opacity-10 blur-3xl animate-pulse delay-1000"
+          style={{ backgroundColor: "var(--primary)" }}
+        ></div>
+        <div
+          className="absolute bottom-[20%] left-[15%] w-36 h-36 sm:w-56 sm:h-56 rounded-full opacity-10 blur-3xl animate-pulse delay-2000"
+          style={{ backgroundColor: "var(--primary)" }}
+        ></div>
+      </div>
 
-        <div className="relative z-10">
-          {/* Progress Bar */}
-          {currentStep > 1 && (
-            <ProgressBar
-              currentStep={currentStep}
-              totalSteps={getTotalSteps()}
-              stepTitles={getStepTitles()}
-            />
-          )}
+      <div className="relative z-10">
+        {/* Progress Bar */}
+        {currentStep > 1 && (
+          <ProgressBar
+            currentStep={currentStep}
+            totalSteps={getTotalSteps()}
+            stepTitles={getStepTitles()}
+            onStepClick={goToStep}
+          />
+        )}
 
-          <div className="py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto">
-              {/* Header Section */}
-              {currentStep === 1 && (
-                <div className="text-center mb-12 sm:mb-10">
-                  <motion.div
-                    initial={{ opacity: 0, y: -40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="mb-8 sm:mb-12"
-                  >
-                    <div className="flex justify-center items-center space-x-4 mb-6 sm:mb-8">
-                      <motion.div
-                        initial={{ scale: 0, rotate: -180 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        transition={{
-                          delay: 0.3,
-                          duration: 0.8,
-                          ease: "easeOut",
-                        }}
-                      >
-                        <Image
-                          src={"/logo2.png"}
-                          alt={""}
-                          width={100}
-                          height={100}
-                        />
-                      </motion.div>
-                      <motion.h1 className="font-bold text-6xl text-left !ml-0 text-white/75">
-                        SABIT
-                      </motion.h1>
-                    </div>
-
+        <div className="py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            {/* Header Section */}
+            {currentStep === 1 && (
+              <div className="text-center mb-12 sm:mb-10">
+                <motion.div
+                  initial={{ opacity: 0, y: -40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  className="mb-8 sm:mb-12"
+                >
+                  <div className="flex justify-center items-center space-x-4 mb-6 sm:mb-8">
                     <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.7, duration: 0.8 }}
-                      className="relative"
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{
+                        delay: 0.3,
+                        duration: 0.8,
+                        ease: "easeOut",
+                      }}
                     >
-                      {currentStep === 1 && (
-                        <p
-                          className="text-xl sm:text-xl md:text-2xl px-4 mx-auto leading-relaxed font-light"
-                          style={{ color: "var(--white-2)" }}
-                        >
-                          Global Freight. Personal Support. No Bots. No Call
-                          Centers.
-                        </p>
-                      )}
+                      <Image
+                        src={"/logo.png"}
+                        alt={"SABIT Logo"}
+                        width={100}
+                        height={100}
+                      />
                     </motion.div>
-                  </motion.div>
+                    <motion.h1 className="font-bold text-6xl text-left !ml-0 text-white/75">
+                      SABIT
+                    </motion.h1>
+                  </div>
 
-                  {/* Feature Icons */}
                   <motion.div
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.9, duration: 0.8 }}
-                    className="hidden sm:flex flex-col sm:flex-row justify-center items-center sm:space-x-8 md:space-x-12 space-y-4 sm:space-y-0"
+                    transition={{ delay: 0.7, duration: 0.8 }}
+                    className="relative"
                   >
-                    {[
-                      {
-                        icon: ShieldCheck,
-                        text: "Secure & Reliable",
-                        color: "var(--primary)",
-                      },
-                      {
-                        icon: Globe,
-                        text: "Global Coverage",
-                        color: "var(--primary)",
-                      },
-                      {
-                        icon: HeartHandshake,
-                        text: "Human Support",
-                        color: "var(--primary)",
-                      },
-                    ].map((feature, index) => (
-                      <motion.div
-                        key={feature.text}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 1.1 + index * 0.2, duration: 0.6 }}
-                        className="flex items-center space-x-3 rounded-2xl px-6 py-4 shadow-lg border hover:shadow-xl transition-all duration-300"
-                        style={{
-                          backgroundColor: "var(--black-4)",
-                          borderColor: "var(--black-5)",
-                        }}
+                    {currentStep === 1 && (
+                      <p
+                        className="text-xl sm:text-xl md:text-2xl px-4 mx-auto leading-relaxed font-light"
+                        style={{ color: "var(--white-2)" }}
                       >
-                        <feature.icon
-                          className="w-6 h-6"
-                          style={{ color: feature.color }}
-                        />
-                        <span
-                          className="text-sm sm:text-base font-medium"
-                          style={{ color: "var(--white-2)" }}
-                        >
-                          {feature.text}
-                        </span>
-                      </motion.div>
-                    ))}
+                        Global Freight. Personal Support. No Bots. No Call
+                        Centers.
+                      </p>
+                    )}
                   </motion.div>
-                </div>
-              )}
+                </motion.div>
 
-              {/* Step Title and Description */}
-              <motion.div
-                key={currentStep}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="text-center mb-8 sm:mb-12"
+                {/* Feature Icons */}
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.9, duration: 0.8 }}
+                  className="hidden sm:flex flex-col sm:flex-row justify-center items-center sm:space-x-8 md:space-x-12 space-y-4 sm:space-y-0"
+                >
+                  {[
+                    {
+                      icon: ShieldCheck,
+                      text: "Secure & Reliable",
+                      color: "var(--primary)",
+                    },
+                    {
+                      icon: Globe,
+                      text: "Global Coverage",
+                      color: "var(--primary)",
+                    },
+                    {
+                      icon: HeartHandshake,
+                      text: "Human Support",
+                      color: "var(--primary)",
+                    },
+                  ].map((feature, index) => (
+                    <motion.div
+                      key={feature.text}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 1.1 + index * 0.2, duration: 0.6 }}
+                      className="flex items-center space-x-3 rounded-2xl px-6 py-4 shadow-lg border hover:shadow-xl transition-all duration-300"
+                      style={{
+                        backgroundColor: "var(--black-4)",
+                        borderColor: "var(--black-5)",
+                      }}
+                    >
+                      <feature.icon
+                        className="w-6 h-6"
+                        style={{ color: feature.color }}
+                      />
+                      <span
+                        className="text-sm sm:text-base font-medium"
+                        style={{ color: "var(--white-2)" }}
+                      >
+                        {feature.text}
+                      </span>
+                    </motion.div>
+                  ))}
+                </motion.div>
+
+                {/* Mobile Scroll Down Button */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.5, duration: 0.8 }}
+                  className="block sm:hidden mt-8"
+                >
+                  <Button
+                    onClick={scrollToContent}
+                    variant="outline"
+                    className="mx-auto flex items-center space-x-2 px-6 py-3 rounded-full border-2 hover:scale-105 transition-all duration-300"
+                    style={{
+                      backgroundColor: "transparent",
+                      borderColor: "var(--primary)",
+                      color: "var(--primary)",
+                    }}
+                  >
+                    <span className="text-sm font-medium">Get Started</span>
+                    <ChevronDown className="w-4 h-4 animate-bounce" />
+                  </Button>
+                </motion.div>
+              </div>
+            )}
+
+            {/* Step Title and Description */}
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-center mb-8 sm:mb-12"
+            >
+              {/* Title */}
+              <h2
+                className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-4 leading-tight ${
+                  currentStep === 1 ? "hidden sm:block" : ""
+                }`}
+                style={{ color: "var(--white)" }}
               >
-                {/* Title */}
-                <h2
-                  className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-4 leading-tight ${
-                    currentStep === 1 ? "hidden sm:block" : ""
-                  }`}
-                  style={{ color: "var(--white)" }}
-                >
-                  {getStepTitle()}
-                </h2>
-                <p
-                  className={`text-base sm:text-lg max-w-4xl mx-auto leading-relaxed px-4 ${
-                    currentStep === 1 ? "hidden sm:block" : "hidden sm:block"
-                  }`}
-                  style={{ color: "var(--gray-2)" }}
-                >
-                  {currentStep === 1 ? getStepDescription() : ""}
-                </p>
-              </motion.div>
+                {getStepTitle()}
+              </h2>
+              <p
+                className={`text-base sm:text-lg max-w-4xl mx-auto leading-relaxed px-4 ${
+                  currentStep === 1 ? "hidden sm:block" : "hidden sm:block"
+                }`}
+                style={{ color: "var(--gray-2)" }}
+              >
+                {currentStep === 1 ? getStepDescription() : ""}
+              </p>
+            </motion.div>
 
-              {/* Form Content */}
+            {/* Previous Button - Top Position for Steps 2+ */}
+            {currentStep > 1 && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="flex justify-start mb-6 sm:mb-8"
+              >
+                <Button
+                  variant="outline"
+                  onClick={prevStep}
+                  className="px-4 py-2.5 sm:py-3 text-sm sm:text-base border-2 hover:opacity-80 rounded-xl shadow-lg"
+                  style={{
+                    backgroundColor: "var(--black-5)",
+                    borderColor: "var(--black-6)",
+                    color: "var(--white-2)",
+                  }}
+                >
+                  <ArrowLeft />
+                  Previous Step
+                </Button>
+              </motion.div>
+            )}
+
+            {/* Form Content */}
+            <div id="form-content">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentStep}
                   initial={{ opacity: 0, x: 100, scale: 0.95 }}
                   animate={{ opacity: 1, x: 0, scale: 1 }}
                   exit={{ opacity: 0, x: -100, scale: 0.95 }}
-                  transition={{ duration: 0.7, ease: "easeInOut" }}
-                  className="rounded-3xl sm:rounded-4xl shadow-2xl border p-4 md:p-12 lg:p-16  md:mx-auto relative overflow-hidden"
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                  className="rounded-3xl sm:rounded-4xl shadow-2xl border p-4 md:p-12 lg:p-16 md:mx-auto relative overflow-hidden"
                   style={{
                     backgroundColor: "var(--black-4)",
                     borderColor: "var(--black-5)",
@@ -520,7 +594,7 @@ const FreightForm = () => {
           </div>
         </div>
       </div>
-    </SimpleBar>
+    </div>
   );
 };
 

@@ -212,22 +212,6 @@ const StepSix: React.FC<StepSixProps> = ({
           </motion.div>
         ))}
       </div>
-
-      {/* Previous button */}
-      <div className="flex justify-start pt-6">
-        <Button
-          variant="outline"
-          onClick={onPrev}
-          className="px-6 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-base border-2 hover:opacity-80 rounded-xl"
-          style={{
-            backgroundColor: "var(--black-5)",
-            borderColor: "var(--black-6)",
-            color: "var(--white-2)",
-          }}
-        >
-          Previous
-        </Button>
-      </div>
     </div>
   );
 };

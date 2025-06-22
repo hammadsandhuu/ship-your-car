@@ -11,7 +11,6 @@ import {
   Thermometer,
   ArrowRight,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface FormData {
   shippingType: string;
@@ -32,7 +31,7 @@ const StepTwo: React.FC<StepTwoProps> = ({
   onNext,
   onPrev,
 }) => {
-  // 🔝 Scroll to top when this component mounts
+  // Scroll to top when this component mounts
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
@@ -284,22 +283,6 @@ const StepTwo: React.FC<StepTwoProps> = ({
             </div>
           </motion.div>
         ))}
-      </div>
-
-      {/* Previous button */}
-      <div className="flex justify-start pt-6 sm:pt-8 px-4 sm:px-0">
-        <Button
-          variant="outline"
-          onClick={onPrev}
-          className="px-6 sm:px-8 py-3 text-sm sm:text-base border-2 hover:opacity-80 rounded-xl"
-          style={{
-            backgroundColor: "var(--black-5)",
-            borderColor: "var(--black-6)",
-            color: "var(--white-2)",
-          }}
-        >
-          Previous
-        </Button>
       </div>
     </div>
   );
