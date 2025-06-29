@@ -163,7 +163,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
   };
 
   const handleFinalSubmit = () => {
-    // Validation check - all required fields must be filled
+    // Validation check
     if (!formData.selectedDate) {
       alert("Please select a meeting date");
       return;
@@ -184,18 +184,37 @@ const StepSeven: React.FC<StepSevenProps> = ({
       return;
     }
 
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(userDetails.email)) {
       alert("Please enter a valid email address");
       return;
     }
 
-    // Add user details to form data
+    // Combine date and time into full datetime
+    const selectedDate = formData.selectedDate;
+    const selectedTime = formData.selectedTime;
+
+    // Parse time string (e.g., "02:00 PM") to 24-hour format
+    const [time, modifier] = selectedTime.split(" ");
+    let [hours, minutes] = time.split(":").map(Number);
+
+    if (modifier === "PM" && hours < 12) hours += 12;
+    if (modifier === "AM" && hours === 12) hours = 0;
+
+    // Create new Date with combined time
+    const combinedDate = new Date(selectedDate);
+    combinedDate.setHours(hours, minutes, 0, 0);
+
+    // Convert to UTC ISO string
+    const utcDateString = combinedDate.toISOString();
+
+    // Update formData with final UTC datetime
+    updateFormData("selectedDate", utcDateString);
+    updateFormData("selectedTime", selectedTime); // Keep original for display (optional)
     updateFormData("userName", userDetails.name);
     updateFormData("userEmail", userDetails.email);
 
-    // Submit the form
+    // Submit
     onSubmit();
   };
 

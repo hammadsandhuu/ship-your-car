@@ -217,7 +217,7 @@ const StepOne: React.FC<StepOneProps> = ({
       </div>
 
       {/* Help Section */}
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
@@ -247,7 +247,7 @@ const StepOne: React.FC<StepOneProps> = ({
         <p className="text-sm md:text-base" style={{ color: "var(--gray-2)" }}>
           For experienced operators who only need the wheels turning.
         </p>
-      </motion.div>
+      </motion.div> */}
     </div>
   );
 };

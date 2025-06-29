@@ -20,6 +20,8 @@ import StepSeven from "./steps/step-seven";
 import ProgressBar from "./progress-bar";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export interface FormData {
   shippingType: string;
@@ -55,6 +57,7 @@ export interface FormData {
 }
 
 const FreightForm = () => {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -77,12 +80,11 @@ const FreightForm = () => {
     cbm: "",
     weight: "",
     volume: "",
-    // Initialize air freight specific fields
     dimensionLength: "",
     dimensionWidth: "",
     dimensionHeight: "",
-    dimensionUnit: "cm", // Default to cm
-    weightUnit: "kg", // Default to kg
+    dimensionUnit: "cm",
+    weightUnit: "kg",
   });
 
   console.log("form data", formData);
@@ -146,9 +148,10 @@ const FreightForm = () => {
   const handleFormSubmit = async () => {
     setIsSubmitting(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Final form data for submission:", formData);
-
+      await axios.post(
+        "https://sabit-backend.vercel.app/api/submit-shipping-form",
+        formData
+      );
       toast({
         title: "🎉 Consultation Scheduled Successfully!",
         description:
@@ -160,7 +163,9 @@ const FreightForm = () => {
           color: "var(--white)",
         },
       });
+      router.push("https://www.justsabit.com/");
     } catch (error) {
+      console.log("error", error);
       toast({
         title: "❌ Scheduling Failed",
         description: "Please try again or contact our support team.",
