@@ -166,7 +166,9 @@ const FreightForm = () => {
           color: "var(--white)",
         },
       });
-      router.push("https://www.justsabit.com/");
+      setTimeout(() => {
+        router.push("https://www.justsabit.com/");
+      }, 800);
     } catch (error) {
       toast({
         title: "❌ Scheduling Failed",
