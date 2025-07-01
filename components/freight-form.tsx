@@ -87,8 +87,6 @@ const FreightForm = () => {
     weightUnit: "kg",
   });
 
-  console.log("form data", formData);
-
   const updateFormData = (field: keyof FormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -145,13 +143,18 @@ const FreightForm = () => {
     return currentStep; // Normal flow for air-sea
   };
 
-  const handleFormSubmit = async () => {
+  // Modified handleFormSubmit to accept optional finalData parameter
+  const handleFormSubmit = async (finalData?: Partial<FormData>) => {
     setIsSubmitting(true);
     try {
+      // Use finalData if provided, otherwise use current formData
+      const dataToSubmit = finalData ? { ...formData, ...finalData } : formData;
+
       await axios.post(
         "https://sabit-backend.vercel.app/api/submit-shipping-form",
-        formData
+        dataToSubmit
       );
+
       toast({
         title: "🎉 Consultation Scheduled Successfully!",
         description:
@@ -165,7 +168,6 @@ const FreightForm = () => {
       });
       router.push("https://www.justsabit.com/");
     } catch (error) {
-      console.log("error", error);
       toast({
         title: "❌ Scheduling Failed",
         description: "Please try again or contact our support team.",
@@ -327,6 +329,7 @@ const FreightForm = () => {
     const descArray =
       descriptions[formData.shippingType as keyof typeof descriptions] ||
       descriptions.default;
+
     return (
       descArray[currentStep - 1] ||
       "Complete your freight logistics requirements"
@@ -339,12 +342,11 @@ const FreightForm = () => {
       updateFormData,
       onNext: nextStep,
       onPrev: prevStep,
-      onSubmit: handleFormSubmit,
+      onSubmit: handleFormSubmit, // Pass the modified handleFormSubmit
       isSubmitting,
     };
 
     const actualStep = getActualStep();
-    console.log("actualStep", actualStep);
 
     switch (actualStep) {
       case 1:
@@ -434,7 +436,6 @@ const FreightForm = () => {
                       SABIT
                     </motion.h1>
                   </div>
-
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -512,7 +513,7 @@ const FreightForm = () => {
                   <Button
                     onClick={scrollToContent}
                     variant="outline"
-                    className="mx-auto flex items-center space-x-2 px-6 py-3 rounded-full border-2 hover:scale-105 transition-all duration-300"
+                    className="mx-auto flex items-center space-x-2 px-6 py-3 rounded-full border-2 hover:scale-105 transition-all duration-300 bg-transparent"
                     style={{
                       backgroundColor: "transparent",
                       borderColor: "var(--primary)",
@@ -564,7 +565,7 @@ const FreightForm = () => {
                 <Button
                   variant="outline"
                   onClick={prevStep}
-                  className="px-4 py-2.5 sm:py-3 text-sm sm:text-base border-2 hover:opacity-80 rounded-xl shadow-lg"
+                  className="px-4 py-2.5 sm:py-3 text-sm sm:text-base border-2 hover:opacity-80 rounded-xl shadow-lg bg-transparent"
                   style={{
                     backgroundColor: "var(--black-5)",
                     borderColor: "var(--black-6)",

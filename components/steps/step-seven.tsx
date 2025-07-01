@@ -29,7 +29,7 @@ interface StepSevenProps {
   formData: FormData;
   updateFormData: (field: keyof FormData, value: any) => void;
   onPrev: () => void;
-  onSubmit?: () => void;
+  onSubmit?: (finalData?: Partial<FormData>) => void; // Modified to accept optional data
   isSubmitting?: boolean;
 }
 
@@ -53,7 +53,6 @@ const StepSeven: React.FC<StepSevenProps> = ({
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showTimeSection, setShowTimeSection] = useState(false);
-
   const timeSectionRef = useRef<HTMLDivElement>(null);
   const userDetailsRef = useRef<HTMLDivElement>(null);
 
@@ -62,7 +61,6 @@ const StepSeven: React.FC<StepSevenProps> = ({
     const checkIfMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-
     checkIfMobile();
     window.addEventListener("resize", checkIfMobile);
     return () => window.removeEventListener("resize", checkIfMobile);
@@ -134,7 +132,6 @@ const StepSeven: React.FC<StepSevenProps> = ({
   const handleDateSelect = (date: Date | undefined) => {
     if (date && isDateAvailable(date)) {
       updateFormData("selectedDate", date);
-
       // On mobile, show time section and scroll to it
       if (isMobile) {
         setShowTimeSection(true);
@@ -148,7 +145,6 @@ const StepSeven: React.FC<StepSevenProps> = ({
   const handleTimeSelect = (time: string) => {
     updateFormData("selectedTime", time);
     setShowUserDetails(true);
-
     // Scroll to user details for both mobile and desktop
     setTimeout(() => {
       userDetailsRef.current?.scrollIntoView({
@@ -168,17 +164,14 @@ const StepSeven: React.FC<StepSevenProps> = ({
       alert("Please select a meeting date");
       return;
     }
-
     if (!formData.selectedTime) {
       alert("Please select a meeting time");
       return;
     }
-
     if (!userDetails.name.trim()) {
       alert("Please enter your full name");
       return;
     }
-
     if (!userDetails.email.trim()) {
       alert("Please enter your email address");
       return;
@@ -197,7 +190,6 @@ const StepSeven: React.FC<StepSevenProps> = ({
     // Parse time string (e.g., "02:00 PM") to 24-hour format
     const [time, modifier] = selectedTime.split(" ");
     let [hours, minutes] = time.split(":").map(Number);
-
     if (modifier === "PM" && hours < 12) hours += 12;
     if (modifier === "AM" && hours === 12) hours = 0;
 
@@ -208,14 +200,22 @@ const StepSeven: React.FC<StepSevenProps> = ({
     // Convert to UTC ISO string
     const utcDateString = combinedDate.toISOString();
 
-    // Update formData with final UTC datetime
-    updateFormData("selectedDate", utcDateString);
-    updateFormData("selectedTime", selectedTime); // Keep original for display (optional)
+    // Prepare final data object instead of updating state
+    const finalData = {
+      selectedDate: combinedDate,
+      selectedTime: selectedTime,
+      userName: userDetails.name,
+      userEmail: userDetails.email,
+    };
+
+    // Update form data first, then submit with final data
+    updateFormData("selectedDate", combinedDate);
+    updateFormData("selectedTime", selectedTime);
     updateFormData("userName", userDetails.name);
     updateFormData("userEmail", userDetails.email);
 
-    // Submit
-    onSubmit();
+    // Pass the final data directly to onSubmit
+    onSubmit(finalData);
   };
 
   // Update isFormComplete validation
@@ -225,6 +225,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
     userDetails.name.trim() &&
     userDetails.email.trim() &&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userDetails.email);
+
   const dateRange = getAvailableDates();
   const timeSlots = getTimeSlots();
 
@@ -466,16 +467,6 @@ const StepSeven: React.FC<StepSevenProps> = ({
               <div className="space-y-4">
                 {/* GCC/Europe Slots */}
                 <div>
-                  <h4
-                    className="text-sm font-medium mb-3 flex items-center"
-                    style={{ color: "var(--white-2)" }}
-                  >
-                    <Globe
-                      className="w-4 h-4 mr-2"
-                      style={{ color: "var(--primary)" }}
-                    />
-                    GCC/Europe Region
-                  </h4>
                   <div className="grid grid-cols-1 gap-2">
                     {timeSlots
                       .filter((slot) => slot.region === "GCC/Europe")
@@ -525,16 +516,6 @@ const StepSeven: React.FC<StepSevenProps> = ({
 
                 {/* USA/Canada Slots */}
                 <div>
-                  <h4
-                    className="text-sm font-medium mb-3 flex items-center"
-                    style={{ color: "var(--white-2)" }}
-                  >
-                    <Globe
-                      className="w-4 h-4 mr-2"
-                      style={{ color: "var(--primary)" }}
-                    />
-                    USA/Canada Region
-                  </h4>
                   <div className="grid grid-cols-1 gap-2">
                     {timeSlots
                       .filter((slot) => slot.region === "USA/Canada")
@@ -618,7 +599,6 @@ const StepSeven: React.FC<StepSevenProps> = ({
             />
             Your Contact Information
           </h3>
-
           <div className="space-y-4 sm:space-y-6">
             <div className="space-y-2">
               <Label
@@ -645,7 +625,6 @@ const StepSeven: React.FC<StepSevenProps> = ({
                 required
               />
             </div>
-
             <div className="space-y-2">
               <Label
                 htmlFor="email"
