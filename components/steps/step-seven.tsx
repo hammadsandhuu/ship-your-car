@@ -1,7 +1,6 @@
 "use client";
-
 import type React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,20 +15,21 @@ import {
   Users,
   MessageSquare,
   User,
-  Globe,
   ChevronDown,
+  AlertCircle,
 } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import axios from "axios";
 
 interface StepSevenProps {
   formData: FormData;
   updateFormData: (field: keyof FormData, value: any) => void;
   onPrev: () => void;
-  onSubmit?: (finalData?: Partial<FormData>) => void; // Modified to accept optional data
+  onSubmit?: (finalData?: Partial<FormData>) => void;
   isSubmitting?: boolean;
 }
 
@@ -38,6 +38,10 @@ interface UserDetails {
   email: string;
 }
 
+interface BookedSlot {
+  selectedTime: string;
+  userName: string;
+}
 const StepSeven: React.FC<StepSevenProps> = ({
   formData,
   updateFormData,
@@ -53,6 +57,10 @@ const StepSeven: React.FC<StepSevenProps> = ({
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showTimeSection, setShowTimeSection] = useState(false);
+  const [bookedSlots, setBookedSlots] = useState<BookedSlot[]>([]);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+  const [slotsError, setSlotsError] = useState<string | null>(null);
+
   const timeSectionRef = useRef<HTMLDivElement>(null);
   const userDetailsRef = useRef<HTMLDivElement>(null);
 
@@ -66,99 +74,180 @@ const StepSeven: React.FC<StepSevenProps> = ({
     return () => window.removeEventListener("resize", checkIfMobile);
   }, []);
 
-  // Get available dates (Sunday-Thursday, up to 30 days in advance)
-  const getAvailableDates = () => {
+  // Memoize function to fetch booked slots for a specific date
+  const fetchBookedSlots = useCallback(async (date: Date) => {
+    setIsLoadingSlots(true);
+    setSlotsError(null);
+
+    try {
+      const formattedDate = format(date, "yyyy-MM-dd");
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/submissions/by-date?date=${formattedDate}`
+      );
+
+      if (response.data.success && response.data.data) {
+        const booked = response.data.data.map((booking: any) => ({
+          selectedTime: booking.selectedTime,
+          userName: booking.userName,
+        }));
+        setBookedSlots(booked);
+
+        // Debug: Log the booked slots
+        console.log("Booked slots for", formattedDate, ":", booked);
+      } else {
+        setBookedSlots([]);
+      }
+    } catch (error) {
+      console.error("Error fetching booked slots:", error);
+      setSlotsError("Failed to load available time slots");
+      setBookedSlots([]);
+    } finally {
+      setIsLoadingSlots(false);
+    }
+  }, []);
+
+  // Fetch booked slots when date changes
+  useEffect(() => {
+    if (formData.selectedDate) {
+      fetchBookedSlots(formData.selectedDate);
+    } else {
+      setBookedSlots([]);
+    }
+  }, [formData.selectedDate, fetchBookedSlots]);
+
+  // Memoize available dates calculation
+  const dateRange = useMemo(() => {
     const today = new Date();
     const maxDate = addDays(today, 30);
     return { from: today, to: maxDate };
-  };
+  }, []);
 
-  // Check if date is available (Sunday-Thursday only)
-  const isDateAvailable = (date: Date) => {
+  // Memoize date availability check
+  const isDateAvailable = useCallback((date: Date) => {
     const day = getDay(date);
     return day >= 0 && day <= 4; // Sunday to Thursday
-  };
+  }, []);
 
-  // Time slots for different regions
-  const getTimeSlots = () => {
-    return [
-      // GCC/Europe slots (AM - early PM)
+  // Memoize time slot booking check
+  const isTimeSlotBooked = useCallback(
+    (time: string) => {
+      const isBooked = bookedSlots.some((slot) => slot.selectedTime === time);
+      // Debug: Log the check
+      console.log(
+        `Checking if ${time} is booked:`,
+        isBooked,
+        "Booked slots:",
+        bookedSlots
+      );
+      return isBooked;
+    },
+    [bookedSlots]
+  );
+
+  // Memoize time slots calculation
+  const timeSlots = useMemo(() => {
+    const baseSlots = [
       {
         time: "09:00 AM",
         label: "GCC/Europe",
-        available: true,
         region: "GCC/Europe",
         description: "Morning slot for Middle East & Europe",
       },
       {
         time: "10:30 AM",
         label: "GCC/Europe",
-        available: true,
         region: "GCC/Europe",
         description: "Late morning slot for Middle East & Europe",
       },
       {
         time: "12:00 PM",
         label: "GCC/Europe",
-        available: true,
         region: "GCC/Europe",
         description: "Noon slot for Middle East & Europe",
       },
-      // USA/Canada slots (PM - early evening)
       {
         time: "02:00 PM",
         label: "USA/Canada",
-        available: true,
         region: "USA/Canada",
         description: "Afternoon slot for Americas",
       },
       {
         time: "03:30 PM",
         label: "USA/Canada",
-        available: true,
         region: "USA/Canada",
         description: "Late afternoon slot for Americas",
       },
       {
         time: "05:00 PM",
         label: "USA/Canada",
-        available: true,
+        region: "USA/Canada",
+        description: "Evening slot for Americas",
+      },
+      {
+        time: "10:00 PM",
+        label: "USA/Canada",
         region: "USA/Canada",
         description: "Evening slot for Americas",
       },
     ];
-  };
 
-  const handleDateSelect = (date: Date | undefined) => {
-    if (date && isDateAvailable(date)) {
-      updateFormData("selectedDate", date);
-      // On mobile, show time section and scroll to it
-      if (isMobile) {
-        setShowTimeSection(true);
+    // Add availability status to each slot
+    return baseSlots.map((slot) => ({
+      ...slot,
+      available: !isTimeSlotBooked(slot.time),
+      isBooked: isTimeSlotBooked(slot.time),
+    }));
+  }, [isTimeSlotBooked]);
+
+  // Memoize date selection handler
+  const handleDateSelect = useCallback(
+    (date: Date | undefined) => {
+      if (date && isDateAvailable(date)) {
+        updateFormData("selectedDate", date);
+        // Reset selected time when date changes
+        updateFormData("selectedTime", "");
+        setShowUserDetails(false);
+
+        // On mobile, show time section and scroll to it
+        if (isMobile) {
+          setShowTimeSection(true);
+          setTimeout(() => {
+            timeSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+          }, 100);
+        }
+      }
+    },
+    [isDateAvailable, updateFormData, isMobile]
+  );
+
+  // Memoize time selection handler
+  const handleTimeSelect = useCallback(
+    (time: string) => {
+      if (!isTimeSlotBooked(time)) {
+        updateFormData("selectedTime", time);
+        setShowUserDetails(true);
+        // Scroll to user details for both mobile and desktop
         setTimeout(() => {
-          timeSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+          userDetailsRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
         }, 100);
       }
-    }
-  };
+    },
+    [isTimeSlotBooked, updateFormData]
+  );
 
-  const handleTimeSelect = (time: string) => {
-    updateFormData("selectedTime", time);
-    setShowUserDetails(true);
-    // Scroll to user details for both mobile and desktop
-    setTimeout(() => {
-      userDetailsRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }, 100);
-  };
+  // Memoize user details change handler
+  const handleUserDetailsChange = useCallback(
+    (field: keyof UserDetails, value: string) => {
+      setUserDetails((prev) => ({ ...prev, [field]: value }));
+    },
+    []
+  );
 
-  const handleUserDetailsChange = (field: keyof UserDetails, value: string) => {
-    setUserDetails((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleFinalSubmit = () => {
+  // Memoize final submit handler
+  const handleFinalSubmit = useCallback(() => {
     // Validation check
     if (!formData.selectedDate) {
       alert("Please select a meeting date");
@@ -176,10 +265,17 @@ const StepSeven: React.FC<StepSevenProps> = ({
       alert("Please enter your email address");
       return;
     }
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(userDetails.email)) {
       alert("Please enter a valid email address");
+      return;
+    }
+
+    // Check if selected time is still available (double-check)
+    if (isTimeSlotBooked(formData.selectedTime)) {
+      alert(
+        "Sorry, this time slot has been booked by someone else. Please select another time."
+      );
       return;
     }
 
@@ -197,10 +293,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
     const combinedDate = new Date(selectedDate);
     combinedDate.setHours(hours, minutes, 0, 0);
 
-    // Convert to UTC ISO string
-    const utcDateString = combinedDate.toISOString();
-
-    // Prepare final data object instead of updating state
+    // Prepare final data object
     const finalData = {
       selectedDate: combinedDate,
       selectedTime: selectedTime,
@@ -216,18 +309,30 @@ const StepSeven: React.FC<StepSevenProps> = ({
 
     // Pass the final data directly to onSubmit
     onSubmit(finalData);
-  };
+  }, [
+    formData.selectedDate,
+    formData.selectedTime,
+    userDetails,
+    isTimeSlotBooked,
+    updateFormData,
+    onSubmit,
+  ]);
 
-  // Update isFormComplete validation
-  const isFormComplete =
-    formData.selectedDate &&
-    formData.selectedTime &&
-    userDetails.name.trim() &&
-    userDetails.email.trim() &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userDetails.email);
-
-  const dateRange = getAvailableDates();
-  const timeSlots = getTimeSlots();
+  // Memoize form completion check
+  const isFormComplete = useMemo(() => {
+    return (
+      formData.selectedDate &&
+      formData.selectedTime &&
+      userDetails.name.trim() &&
+      userDetails.email.trim() &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userDetails.email)
+    );
+  }, [
+    formData.selectedDate,
+    formData.selectedTime,
+    userDetails.name,
+    userDetails.email,
+  ]);
 
   return (
     <div className="space-y-6 sm:space-y-8 px-2 sm:px-0 h-full">
@@ -465,112 +570,192 @@ const StepSeven: React.FC<StepSevenProps> = ({
               </div>
             ) : (
               <div className="space-y-4">
-                {/* GCC/Europe Slots */}
-                <div>
-                  <div className="grid grid-cols-1 gap-2">
-                    {timeSlots
-                      .filter((slot) => slot.region === "GCC/Europe")
-                      .map((slot) => (
-                        <Button
-                          key={slot.time}
-                          variant={
-                            formData.selectedTime === slot.time
-                              ? "default"
-                              : "outline"
-                          }
-                          disabled={!slot.available}
-                          className={`h-10 flex items-center justify-center text-center rounded-xl ${
-                            formData.selectedTime === slot.time
-                              ? "shadow-lg"
-                              : "hover:opacity-80"
-                          } ${
-                            !slot.available
-                              ? "opacity-50 cursor-not-allowed"
-                              : ""
-                          }`}
-                          style={{
-                            backgroundColor:
-                              formData.selectedTime === slot.time
-                                ? "var(--primary2)"
-                                : "transparent",
-                            borderColor:
-                              formData.selectedTime === slot.time
-                                ? "var(--primary)"
-                                : "var(--black-7)",
-                            color:
-                              formData.selectedTime === slot.time
-                                ? "var(--black)"
-                                : "var(--white-2)",
-                          }}
-                          onClick={() =>
-                            slot.available && handleTimeSelect(slot.time)
-                          }
-                        >
-                          <span className="text-sm font-medium">
-                            {slot.time}
-                          </span>
-                        </Button>
-                      ))}
+                {/* Loading State */}
+                {isLoadingSlots && (
+                  <div className="text-center py-4">
+                    <div
+                      className="w-6 h-6 mx-auto mb-2 animate-spin rounded-full border-2 border-t-transparent"
+                      style={{
+                        borderColor: "var(--primary)",
+                        borderTopColor: "transparent",
+                      }}
+                    />
+                    <p className="text-sm" style={{ color: "var(--gray-2)" }}>
+                      Loading available time slots...
+                    </p>
                   </div>
-                </div>
+                )}
 
-                {/* USA/Canada Slots */}
-                <div>
-                  <div className="grid grid-cols-1 gap-2">
-                    {timeSlots
-                      .filter((slot) => slot.region === "USA/Canada")
-                      .map((slot) => (
-                        <Button
-                          key={slot.time}
-                          variant={
-                            formData.selectedTime === slot.time
-                              ? "default"
-                              : "outline"
-                          }
-                          disabled={!slot.available}
-                          className={`h-10 flex items-center justify-center text-center rounded-xl ${
-                            formData.selectedTime === slot.time
-                              ? "shadow-lg"
-                              : "hover:opacity-80"
-                          } ${
-                            !slot.available
-                              ? "opacity-50 cursor-not-allowed"
-                              : ""
-                          }`}
-                          style={{
-                            backgroundColor:
-                              formData.selectedTime === slot.time
-                                ? "var(--primary2)"
-                                : "transparent",
-                            borderColor:
-                              formData.selectedTime === slot.time
-                                ? "var(--primary)"
-                                : "var(--black-7)",
-                            color:
-                              formData.selectedTime === slot.time
-                                ? "var(--black)"
-                                : "var(--white-2)",
-                          }}
-                          onClick={() =>
-                            slot.available && handleTimeSelect(slot.time)
-                          }
-                        >
-                          <span className="text-sm font-medium">
-                            {slot.time}
-                          </span>
-                        </Button>
-                      ))}
+                {/* Error State */}
+                {slotsError && (
+                  <div className="text-center py-4">
+                    <AlertCircle
+                      className="w-8 h-8 mx-auto mb-2"
+                      style={{ color: "#ff4444" }}
+                    />
+                    <p className="text-sm" style={{ color: "#ff4444" }}>
+                      {slotsError}
+                    </p>
+                    <Button
+                      onClick={() => fetchBookedSlots(formData.selectedDate!)}
+                      variant="outline"
+                      className="mt-2 text-xs"
+                    >
+                      Retry
+                    </Button>
                   </div>
-                </div>
+                )}
 
-                <div className="mt-4 text-center">
-                  <div
-                    className="text-xs sm:text-sm"
-                    style={{ color: "var(--gray-2)" }}
-                  >
-                    All times shown in your local timezone · 15-minute call
-                  </div>
-                </div>
+                {/* Time Slots */}
+                {!isLoadingSlots && !slotsError && (
+                  <>
+                    {/* GCC/Europe Slots */}
+                    <div>
+                      <h4
+                        className="text-sm font-medium mb-2"
+                        style={{ color: "var(--gray-2)" }}
+                      >
+                        Morning Slots
+                      </h4>
+                      <div className="grid grid-cols-1 gap-2">
+                        {timeSlots
+                          .filter((slot) => slot.region === "GCC/Europe")
+                          .map((slot) => (
+                            <Button
+                              key={slot.time}
+                              variant={
+                                formData.selectedTime === slot.time
+                                  ? "default"
+                                  : "outline"
+                              }
+                              disabled={!slot.available}
+                              className={`h-10 flex items-center justify-between text-left rounded-xl ${
+                                formData.selectedTime === slot.time
+                                  ? "shadow-lg"
+                                  : "hover:opacity-80"
+                              } ${
+                                !slot.available
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : ""
+                              }`}
+                              style={{
+                                backgroundColor:
+                                  formData.selectedTime === slot.time
+                                    ? "var(--primary2)"
+                                    : slot.isBooked
+                                    ? "rgba(var(--primary2-rgb), 0.3)" // Light primary2 background
+                                    : "transparent",
+                                borderColor:
+                                  formData.selectedTime === slot.time
+                                    ? "var(--primary)"
+                                    : slot.isBooked
+                                    ? "#ff4444"
+                                    : "var(--black-7)",
+                                color:
+                                  formData.selectedTime === slot.time
+                                    ? "var(--black)"
+                                    : slot.isBooked
+                                    ? "#ff4444"
+                                    : "var(--white-2)",
+                              }}
+                              onClick={() =>
+                                slot.available && handleTimeSelect(slot.time)
+                              }
+                            >
+                              <span className="text-sm font-medium">
+                                {slot.time}
+                              </span>
+                              {slot.isBooked && (
+                                <span className="text-xs">Booked</span>
+                              )}
+                            </Button>
+                          ))}
+                      </div>
+                    </div>
+
+                    {/* USA/Canada Slots */}
+                    <div>
+                      <h4
+                        className="text-sm font-medium mb-2"
+                        style={{ color: "var(--gray-2)" }}
+                      >
+                        Evening Slots
+                      </h4>
+                      <div className="grid grid-cols-1 gap-2">
+                        {timeSlots
+                          .filter((slot) => slot.region === "USA/Canada")
+                          .map((slot) => (
+                            <Button
+                              key={slot.time}
+                              variant={
+                                formData.selectedTime === slot.time
+                                  ? "default"
+                                  : "outline"
+                              }
+                              disabled={!slot.available}
+                              className={`h-10 flex items-center justify-between text-left rounded-xl ${
+                                formData.selectedTime === slot.time
+                                  ? "shadow-lg"
+                                  : "hover:opacity-80"
+                              } ${
+                                !slot.available
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : ""
+                              }`}
+                              style={{
+                                backgroundColor:
+                                  formData.selectedTime === slot.time
+                                    ? "var(--primary2)"
+                                    : slot.isBooked
+                                    ? "rgba(var(--primary2-rgb), 0.3)" // Light primary2 background
+                                    : "transparent",
+                                borderColor:
+                                  formData.selectedTime === slot.time
+                                    ? "var(--primary)"
+                                    : slot.isBooked
+                                    ? "#ff4444"
+                                    : "var(--black-7)",
+                                color:
+                                  formData.selectedTime === slot.time
+                                    ? "var(--black)"
+                                    : slot.isBooked
+                                    ? "#ff4444"
+                                    : "var(--white-2)",
+                              }}
+                              onClick={() =>
+                                slot.available && handleTimeSelect(slot.time)
+                              }
+                            >
+                              <span className="text-sm font-medium">
+                                {slot.time}
+                              </span>
+                              {slot.isBooked && (
+                                <span className="text-xs">Booked</span>
+                              )}
+                            </Button>
+                          ))}
+                      </div>
+                    </div>
+
+                    <div className="mt-4 text-center">
+                      <div
+                        className="text-xs sm:text-sm"
+                        style={{ color: "var(--gray-2)" }}
+                      >
+                        All times shown in your local timezone · 15-minute call
+                      </div>
+                      {bookedSlots.length > 0 && (
+                        <div
+                          className="text-xs mt-2"
+                          style={{ color: "#ff4444" }}
+                        >
+                          {bookedSlots.length} slot(s) already booked for this
+                          date
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </motion.div>

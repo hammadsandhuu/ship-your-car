@@ -151,7 +151,7 @@ const FreightForm = () => {
       const dataToSubmit = finalData ? { ...formData, ...finalData } : formData;
 
       await axios.post(
-        "https://sabit-backend.vercel.app/api/submit-shipping-form",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/submit-shipping-form`,
         dataToSubmit
       );
 
@@ -168,7 +168,7 @@ const FreightForm = () => {
       });
       setTimeout(() => {
         router.push("https://www.justsabit.com/");
-      }, 800);
+      }, 5000);
     } catch (error) {
       toast({
         title: "❌ Scheduling Failed",
