@@ -82,7 +82,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
     try {
       const formattedDate = format(date, "yyyy-MM-dd");
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/submissions/by-date?date=${formattedDate}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/by-date?date=${formattedDate}`
       );
 
       if (response.data.success && response.data.data) {
@@ -91,14 +91,10 @@ const StepSeven: React.FC<StepSevenProps> = ({
           userName: booking.userName,
         }));
         setBookedSlots(booked);
-
-        // Debug: Log the booked slots
-        console.log("Booked slots for", formattedDate, ":", booked);
       } else {
         setBookedSlots([]);
       }
     } catch (error) {
-      console.error("Error fetching booked slots:", error);
       setSlotsError("Failed to load available time slots");
       setBookedSlots([]);
     } finally {

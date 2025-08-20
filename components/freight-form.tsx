@@ -151,12 +151,12 @@ const FreightForm = () => {
       const dataToSubmit = finalData ? { ...formData, ...finalData } : formData;
 
       await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/submit-shipping-form`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submit`,
         dataToSubmit
       );
 
       toast({
-        title: "🎉 Consultation Scheduled Successfully!",
+        title: "Consultation Scheduled Successfully!",
         description:
           "We'll send you a calendar invite and call you at the scheduled time. Please check your inbox or spam folder for our message.",
         className: "border-2",
@@ -171,7 +171,7 @@ const FreightForm = () => {
       }, 5000);
     } catch (error) {
       toast({
-        title: "❌ Scheduling Failed",
+        title: "Scheduling Failed",
         description: "Please try again or contact our support team.",
         variant: "destructive",
         className: "border-2",
