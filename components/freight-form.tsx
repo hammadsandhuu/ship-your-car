@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
+
 export interface FormData {
   shippingType: string;
   freightType: string;
@@ -48,12 +49,13 @@ export interface FormData {
   cbm?: string;
   weight?: string;
   volume?: string;
-  // New fields for dimensions and units (for air freight)
   dimensionLength?: string;
   dimensionWidth?: string;
   dimensionHeight?: string;
-  dimensionUnit?: string; // 'cm' or 'inch'
-  weightUnit?: string; // 'kg' or 'lb'
+  dimensionUnit?: string;
+  weightUnit?: string;
+  userTimeZone?: string;
+  selectedTimeLocal?: string;
 }
 
 const FreightForm = () => {
@@ -62,7 +64,6 @@ const FreightForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  // Initialize form data with proper defaults
   const [formData, setFormData] = useState<FormData>({
     shippingType: "",
     freightType: "",
@@ -85,6 +86,8 @@ const FreightForm = () => {
     dimensionHeight: "",
     dimensionUnit: "cm",
     weightUnit: "kg",
+    userTimeZone: "",
+    selectedTimeLocal: "",
   });
 
   const updateFormData = (field: keyof FormData, value: any) => {
@@ -149,7 +152,7 @@ const FreightForm = () => {
     try {
       // Use finalData if provided, otherwise use current formData
       const dataToSubmit = finalData ? { ...formData, ...finalData } : formData;
-
+      console.log(dataToSubmit);
       await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submit`,
         dataToSubmit
