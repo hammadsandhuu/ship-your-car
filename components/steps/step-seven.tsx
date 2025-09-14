@@ -150,10 +150,11 @@ const StepSeven: React.FC<StepSevenProps> = ({
 
     try {
       const formattedDate = format(date, "yyyy-MM-dd");
+      console.log("formattedDate", formattedDate);
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/by-date?date=${formattedDate}`
       );
-
+      console.log("response", response.data.data);
       if (response.data.success && response.data.data) {
         const booked = response.data.data.map((booking: any) => ({
           selectedTime: booking.selectedTime,
@@ -770,7 +771,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
                     <div className="mt-4 text-center">
                       {bookedSlots.length > 0 && (
                         <div
-                          className="text-xs mt-2 p-2 rounded-lg"
+                          className="text-xs p-2 rounded-xl"
                           style={{
                             color: "#ff4444",
                             backgroundColor: "rgba(255, 68, 68, 0.1)",
