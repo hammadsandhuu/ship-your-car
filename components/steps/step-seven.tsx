@@ -446,15 +446,24 @@ const StepSeven: React.FC<StepSevenProps> = ({
                     slot.available && handleTimeSelect(slot.time, slot.ksaTime)
                   }
                 >
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">
-                      {slot.time} — ({slot.ksaTime} KSA on{" "}
-                      {formData.selectedDate
-                        ? format(formData.selectedDate, "EEEE, MMMM dd, yyyy")
-                        : ""}
-                      )
+                  <div className="flex flex-col items-center justify-center">
+                    <span className="text-sm font-medium text-center">
+                      {slot.time}
+                      <span className="hidden sm:inline">
+                        {" — "}
+                        {formData.selectedDate
+                          ? format(formData.selectedDate, "EEEE, MMMM dd, yyyy")
+                          : ""}
+                      </span>
+                      <span className="inline sm:hidden text-xs opacity-70">
+                        {" — "}
+                        {formData.selectedDate
+                          ? format(formData.selectedDate, "MMM dd, yyyy")
+                          : ""}
+                      </span>
                     </span>
                   </div>
+
                   {slot.isBooked && (
                     <span className="text-xs text-red-600 py-1 rounded-xl">
                       Booked
@@ -744,6 +753,17 @@ const StepSeven: React.FC<StepSevenProps> = ({
                 {/* ✅ Time Slots with proper morning/evening separation */}
                 {!isLoadingSlots && !slotsError && (
                   <>
+                    <div
+                      className="p-3 rounded-xl text-sm"
+                      style={{
+                        backgroundColor: "var(--primary2)",
+                        color: "var(--black)",
+                      }}
+                    >
+                      ⏰ All times are shown in your local timezone:{" "}
+                      <strong>{userTimeZone}</strong>
+                    </div>
+
                     {/* Morning Slots */}
                     {renderTimeSlots(morningSlots, "Morning")}
 
@@ -794,62 +814,6 @@ const StepSeven: React.FC<StepSevenProps> = ({
             />
             Your Contact Information
           </h3>
-
-          {/* ✅ Selected time confirmation with morning/evening indicator */}
-          {formData.selectedTimeLocal && (
-            <div
-              className="mb-6 p-4 rounded-xl border"
-              style={{
-                backgroundColor: "var(--primary2)",
-                borderColor: "var(--primary)",
-              }}
-            >
-              <div className="flex items-center">
-                <CheckCircle
-                  className="w-5 h-5 mr-2"
-                  style={{ color: "var(--black)" }}
-                />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p
-                      className="font-medium text-sm"
-                      style={{ color: "var(--black)" }}
-                    >
-                      Meeting scheduled for: {formData.selectedTimeLocal}
-                    </p>
-                    {/* Morning/Evening Badge */}
-                    {(() => {
-                      const selectedSlot = timeSlots.find(
-                        (slot) => slot.ksaTime === formData.selectedTime
-                      );
-                      return selectedSlot ? (
-                        <span
-                          className="text-xs px-2 py-1 rounded-full font-medium"
-                          style={{
-                            backgroundColor: selectedSlot.isMorning
-                              ? "#22c55e"
-                              : "#f59e0b",
-                            color: "white",
-                          }}
-                        >
-                          {selectedSlot.isMorning
-                            ? "Morning Slot"
-                            : "Evening Slot"}
-                        </span>
-                      ) : null;
-                    })()}
-                  </div>
-                  <p
-                    className="text-xs opacity-70 mt-1"
-                    style={{ color: "var(--black)" }}
-                  >
-                    ({formData.selectedTime} KSA time) on{" "}
-                    {format(formData.selectedDate!, "EEEE, MMMM dd, yyyy")}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
 
           <div className="space-y-4 sm:space-y-6">
             <div className="space-y-2">
