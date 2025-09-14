@@ -210,13 +210,12 @@ const StepSeven: React.FC<StepSevenProps> = ({
 
     // Base KSA time slots
     const baseKSASlots = [
-      "09:00 AM", // Morning KSA
-      "10:30 AM", // Morning KSA
-      "12:00 PM", // Afternoon KSA
-      "02:00 PM", // Afternoon KSA
-      "03:30 PM", // Afternoon KSA
-      "05:00 PM", // Evening KSA
-      "10:00 PM", // Night KSA
+      "10:30 AM",
+      "11:30 AM",
+      "1:00 PM",
+      "6:30 PM",
+      "7:00 PM",
+      "7:30 PM",
     ];
 
     return baseKSASlots
@@ -422,7 +421,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
                   key={slot.ksaTime}
                   variant={isSelected ? "default" : "outline"}
                   disabled={!slot.available}
-                  className={`h-12 flex items-center justify-between text-left rounded-xl transition-all ${
+                  className={`h-12 flex items-center justify-center text-center rounded-xl transition-all ${
                     isSelected ? "shadow-lg" : "hover:opacity-80"
                   } ${!slot.available ? "opacity-50 cursor-not-allowed" : ""}`}
                   style={{
@@ -446,8 +445,8 @@ const StepSeven: React.FC<StepSevenProps> = ({
                     slot.available && handleTimeSelect(slot.time, slot.ksaTime)
                   }
                 >
-                  <div className="flex flex-col items-center justify-center">
-                    <span className="text-sm font-medium text-center">
+                  <div className="flex flex-col items-center justify-center w-full">
+                    <span className="text-sm font-medium text-center w-full">
                       {slot.time}
                       <span className="hidden sm:inline">
                         {" — "}
@@ -763,10 +762,8 @@ const StepSeven: React.FC<StepSevenProps> = ({
                       ⏰ All times are shown in your local timezone:{" "}
                       <strong>{userTimeZone}</strong>
                     </div>
-
                     {/* Morning Slots */}
                     {renderTimeSlots(morningSlots, "Morning")}
-
                     {/* Evening Slots */}
                     {renderTimeSlots(eveningSlots, "Evening")}
 
