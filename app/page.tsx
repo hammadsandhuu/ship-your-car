@@ -1,5 +1,5 @@
-import FreightForm from "@/components/freight-form"
+import ShipCarForm from "@/components/ship-car-form";
 
-export default function Home() {
-  return <FreightForm />
+export default function ShipCarFromUSAToKSAPage() {
+  return <ShipCarForm />;
 }
