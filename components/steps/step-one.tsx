@@ -215,39 +215,6 @@ const StepOne: React.FC<StepOneProps> = ({
           </motion.div>
         ))}
       </div>
-
-      {/* Help Section */}
-      {/* <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="hidden sm:block rounded-xl p-6 border"
-        style={{
-          backgroundColor: "var(--black-5)",
-          borderColor: "var(--black-6)",
-        }}
-      >
-        <h4 className="font-semibold mb-2" style={{ color: "var(--white)" }}>
-          Need help choosing?
-        </h4>
-        <p
-          className="text-sm md:text-base mb-2"
-          style={{ color: "var(--gray-2)" }}
-        >
-          Not sure what those terms mean? We'll help you choose the right one on
-          the next screen.
-        </p>
-        <p
-          className="text-sm md:text-base mb-2"
-          style={{ color: "var(--gray-2)" }}
-        >
-          Most clients use this for destination clearance and last-mile
-          delivery.
-        </p>
-        <p className="text-sm md:text-base" style={{ color: "var(--gray-2)" }}>
-          For experienced operators who only need the wheels turning.
-        </p>
-      </motion.div> */}
     </div>
   );
 };

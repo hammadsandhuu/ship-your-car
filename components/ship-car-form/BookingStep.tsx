@@ -1,12 +1,16 @@
+// components/BookingStep.tsx
 "use client";
-import type React from "react";
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
-import type { FormData } from "../freight-form";
 import { format, addDays, getDay } from "date-fns";
 import {
   CalendarDays,
@@ -14,10 +18,8 @@ import {
   CheckCircle,
   Users,
   MessageSquare,
-  User,
   ChevronDown,
   AlertCircle,
-  Globe,
 } from "lucide-react";
 import {
   Collapsible,
@@ -25,45 +27,46 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import axios from "axios";
+import type { CarFormData } from "@/types/car-shipping";
 
-interface StepSevenProps {
-  formData: FormData;
-  updateFormData: (field: keyof FormData, value: any) => void;
-  onPrev: () => void;
-  onSubmit?: (finalData?: Partial<FormData>) => void;
+interface BookingStepProps {
+  formData: CarFormData;
+  updateFormData: (field: keyof CarFormData, value: any) => void;
+  onBack: () => void;
+  onSubmit?: (finalData: Partial<CarFormData>) => Promise<void> | void;
   isSubmitting?: boolean;
 }
 
-interface UserDetails {
-  name: string;
-  email: string;
-}
 
 interface BookedSlot {
   selectedTime: string;
-  userName: string;
+  userName?: string;
 }
 
 interface TimeSlot {
   time: string;
-  ksaTime: string; // Original KSA time for backend
+  ksaTime: string;
   available: boolean;
   isBooked: boolean;
   isMorning: boolean;
 }
 
-const StepSeven: React.FC<StepSevenProps> = ({
+const baseKSASlots = [
+  "10:30 AM",
+  "11:30 AM",
+  "1:00 PM",
+  "6:30 PM",
+  "7:00 PM",
+  "7:30 PM",
+];
+
+const BookingStep: React.FC<BookingStepProps> = ({
   formData,
   updateFormData,
-  onPrev,
+  onBack,
   onSubmit = () => {},
   isSubmitting = false,
 }) => {
-  const [showUserDetails, setShowUserDetails] = useState(false);
-  const [userDetails, setUserDetails] = useState<UserDetails>({
-    name: "",
-    email: "",
-  });
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showTimeSection, setShowTimeSection] = useState(false);
@@ -72,318 +75,177 @@ const StepSeven: React.FC<StepSevenProps> = ({
   const [slotsError, setSlotsError] = useState<string | null>(null);
 
   const timeSectionRef = useRef<HTMLDivElement>(null);
-  const userDetailsRef = useRef<HTMLDivElement>(null);
 
-  //  Detect user timezone and get timezone info
-  const userTimeZone = useMemo(() => {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-  }, []);
+  const userTimeZone = useMemo(
+    () => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
+    []
+  );
 
-  const timezoneInfo = useMemo(() => {
-    const formatter = new Intl.DateTimeFormat("en", {
-      timeZoneName: "short",
-      timeZone: userTimeZone,
-    });
-    const parts = formatter.formatToParts(new Date());
-    const timeZoneName =
-      parts.find((part) => part.type === "timeZoneName")?.value || userTimeZone;
-
-    return {
-      name: timeZoneName,
-      fullName: userTimeZone,
-    };
-  }, [userTimeZone]);
-
-  //  Convert KSA time to user's local time
   const convertKSATimeToLocal = useCallback(
     (ksaTimeString: string, selectedDate: Date) => {
       const [time, modifier] = ksaTimeString.split(" ");
       let [hours, minutes] = time.split(":").map(Number);
 
-      // Convert to 24-hour format
       if (modifier === "PM" && hours < 12) hours += 12;
       if (modifier === "AM" && hours === 12) hours = 0;
+
       const ksaDate = new Date(selectedDate);
       ksaDate.setHours(hours, minutes, 0, 0);
-      const utcTime = ksaDate.getTime() - 3 * 60 * 60 * 1000; // KSA is UTC+3
+
+      const utcTime = ksaDate.getTime() - 3 * 60 * 60 * 1000; // KSA = UTC+3
       const localDate = new Date(utcTime);
-      const localTimeString = localDate.toLocaleTimeString("en-US", {
+
+      const localTime = localDate.toLocaleTimeString("en-US", {
         hour: "numeric",
         minute: "2-digit",
         hour12: true,
         timeZone: userTimeZone,
       });
-      const localHour = localDate.getHours();
-      const isMorning = localHour < 12;
 
-      return {
-        localTime: localTimeString,
-        isMorning,
-        localHour,
-      };
+      return { localTime, isMorning: localDate.getHours() < 12 };
     },
     [userTimeZone]
   );
+
   useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkIfMobile();
-    window.addEventListener("resize", checkIfMobile);
-    return () => window.removeEventListener("resize", checkIfMobile);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
+
   const fetchBookedSlots = useCallback(async (date: Date) => {
     setIsLoadingSlots(true);
     setSlotsError(null);
-
     try {
       const formattedDate = format(date, "yyyy-MM-dd");
-      console.log("formattedDate", formattedDate);
-      const response = await axios.get(
+      const res = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submissions/by-date?date=${formattedDate}`
       );
-      console.log("response", response.data.data);
-      if (response.data.success && response.data.data) {
-        const booked = response.data.data.map((booking: any) => ({
-          selectedTime: booking.selectedTime,
-          userName: booking.userName,
-        }));
-        setBookedSlots(booked);
-      } else {
-        setBookedSlots([]);
-      }
-    } catch (error) {
+      const booked =
+        res.data?.data?.map((b: any) => ({
+          selectedTime: b.selectedTime,
+          userName: b.userName,
+        })) || [];
+      setBookedSlots(booked);
+    } catch (err) {
       setSlotsError("Failed to load available time slots");
       setBookedSlots([]);
     } finally {
       setIsLoadingSlots(false);
     }
   }, []);
+
   useEffect(() => {
-    if (formData.selectedDate) {
-      fetchBookedSlots(formData.selectedDate);
-    } else {
-      setBookedSlots([]);
-    }
+    if (formData.selectedDate) fetchBookedSlots(formData.selectedDate);
+    else setBookedSlots([]);
   }, [formData.selectedDate, fetchBookedSlots]);
+
   const dateRange = useMemo(() => {
     const today = new Date();
     const maxDate = addDays(today, 30);
     return { from: today, to: maxDate };
   }, []);
+
   const isDateAvailable = useCallback((date: Date) => {
     const day = getDay(date);
-    return day >= 0 && day <= 4;
+    return day >= 0 && day <= 4; // Sunday–Thursday
   }, []);
+
   const isTimeSlotBooked = useCallback(
-    (ksaTime: string) => {
-      const isBooked = bookedSlots.some(
-        (slot) => slot.selectedTime === ksaTime
-      );
-      return isBooked;
-    },
+    (ksaTime: string) => bookedSlots.some((s) => s.selectedTime === ksaTime),
     [bookedSlots]
   );
+
   const timeSlots = useMemo((): TimeSlot[] => {
     if (!formData.selectedDate) return [];
-    const baseKSASlots = [
-      "10:30 AM",
-      "11:30 AM",
-      "1:00 PM",
-      "6:30 PM",
-      "7:00 PM",
-      "7:30 PM",
-    ];
-
     return baseKSASlots
       .map((ksaTime) => {
-        const conversion = convertKSATimeToLocal(
+        const { localTime, isMorning } = convertKSATimeToLocal(
           ksaTime,
           formData.selectedDate!
         );
-        const isBooked = isTimeSlotBooked(ksaTime);
-
+        const booked = isTimeSlotBooked(ksaTime);
         return {
-          time: conversion.localTime,
-          ksaTime: ksaTime,
-          available: !isBooked,
-          isBooked: isBooked,
-          isMorning: conversion.isMorning,
+          time: localTime,
+          ksaTime,
+          available: !booked,
+          isBooked: booked,
+          isMorning,
         };
       })
       .sort((a, b) => {
-        // Sort by actual time order
-        const timeA = new Date(`1970-01-01 ${a.time}`);
-        const timeB = new Date(`1970-01-01 ${b.time}`);
-        return timeA.getTime() - timeB.getTime();
+        const tA = new Date(`1970-01-01 ${a.time}`);
+        const tB = new Date(`1970-01-01 ${b.time}`);
+        return tA.getTime() - tB.getTime();
       });
   }, [formData.selectedDate, convertKSATimeToLocal, isTimeSlotBooked]);
-  const morningSlots = useMemo(
-    () => timeSlots.filter((slot) => slot.isMorning),
-    [timeSlots]
-  );
 
-  const eveningSlots = useMemo(
-    () => timeSlots.filter((slot) => !slot.isMorning),
-    [timeSlots]
-  );
+  const morningSlots = timeSlots.filter((s) => s.isMorning);
+  const eveningSlots = timeSlots.filter((s) => !s.isMorning);
 
-  // Date selection
   const handleDateSelect = useCallback(
     (date: Date | undefined) => {
       if (date && isDateAvailable(date)) {
         updateFormData("selectedDate", date);
         updateFormData("selectedTime", "");
-        setShowUserDetails(false);
-
         if (isMobile) {
           setShowTimeSection(true);
-          setTimeout(() => {
-            timeSectionRef.current?.scrollIntoView({ behavior: "smooth" });
-          }, 100);
+          setTimeout(
+            () =>
+              timeSectionRef.current?.scrollIntoView({ behavior: "smooth" }),
+            100
+          );
         }
       }
     },
     [isDateAvailable, updateFormData, isMobile]
   );
+
   const handleTimeSelect = useCallback(
     (localTime: string, ksaTime: string) => {
       if (!isTimeSlotBooked(ksaTime)) {
         updateFormData("selectedTime", ksaTime);
         updateFormData("selectedTimeLocal", localTime);
-        setShowUserDetails(true);
-        setTimeout(() => {
-          userDetailsRef.current?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        }, 100);
       }
     },
     [isTimeSlotBooked, updateFormData]
   );
 
-  // User details
-  const handleUserDetailsChange = useCallback(
-    (field: keyof UserDetails, value: string) => {
-      setUserDetails((prev) => ({ ...prev, [field]: value }));
-    },
-    []
-  );
-
-  // Final submit
+  // Add name to formData still handled via updateFormData directly in UI.
   const handleFinalSubmit = useCallback(() => {
-    if (!formData.selectedDate) {
-      alert("Please select a meeting date");
-      return;
-    }
-    if (!formData.selectedTime) {
-      alert("Please select a meeting time");
-      return;
-    }
-    if (!userDetails.name.trim()) {
-      alert("Please enter your full name");
-      return;
-    }
-    if (!userDetails.email.trim()) {
-      alert("Please enter your email address");
-      return;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(userDetails.email)) {
-      alert("Please enter a valid email address");
-      return;
-    }
+    if (!formData.selectedDate) return alert("Please select a meeting date");
+    if (!formData.selectedTime) return alert("Please select a meeting time");
+    if (!formData.name || !formData.name.trim())
+      return alert("Please enter your full name");
 
     if (isTimeSlotBooked(formData.selectedTime)) {
       alert(
-        "Sorry, this time slot has been booked by someone else. Please select another time."
+        "Sorry, this time slot has just been booked. Please choose another slot."
       );
       return;
     }
 
-    const selectedDate = formData.selectedDate;
-    const selectedTime = formData.selectedTime;
-
-    const [time, modifier] = selectedTime.split(" ");
-    let [hours, minutes] = time.split(":").map(Number);
-    if (modifier === "PM" && hours < 12) hours += 12;
-    if (modifier === "AM" && hours === 12) hours = 0;
-
-    const combinedDate = new Date(selectedDate);
-    combinedDate.setHours(hours, minutes, 0, 0);
-
-    const finalData = {
-      selectedDate: combinedDate,
-      selectedTime: selectedTime, // KSA time for backend
-      selectedTimeLocal: formData.selectedTimeLocal, // Local time for reference
-      userName: userDetails.name,
-      userEmail: userDetails.email,
-      userTimeZone: userTimeZone,
+    const finalPayload = {
+      name: formData.name,
+      selectedDate: formData.selectedDate,
+      selectedTime: formData.selectedTime,
+      selectedTimeLocal: formData.selectedTimeLocal,
+      userTimeZone,
     };
 
-    updateFormData("selectedDate", combinedDate);
-    updateFormData("selectedTime", selectedTime);
-    updateFormData("userName", userDetails.name);
-    updateFormData("userEmail", userDetails.email);
-    updateFormData("userTimeZone", userTimeZone);
+    onSubmit?.(finalPayload);
+  }, [formData, isTimeSlotBooked, onSubmit, userTimeZone]);
 
-    onSubmit(finalData);
-  }, [
-    formData.selectedDate,
-    formData.selectedTime,
-    formData.selectedTimeLocal,
-    userDetails,
-    isTimeSlotBooked,
-    updateFormData,
-    onSubmit,
-    userTimeZone,
-  ]);
-
-  // Form complete check
-  const isFormComplete = useMemo(() => {
-    return (
-      formData.selectedDate &&
-      formData.selectedTime &&
-      userDetails.name.trim() &&
-      userDetails.email.trim() &&
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userDetails.email)
-    );
-  }, [
-    formData.selectedDate,
-    formData.selectedTime,
-    userDetails.name,
-    userDetails.email,
-  ]);
-
-  // ✅ Render time slots function
-  const renderTimeSlots = useCallback(
+  const renderSlots = useCallback(
     (slots: TimeSlot[], title: string) => {
-      if (slots.length === 0) return null;
-
+      if (!slots.length) return null;
       return (
         <div>
           <h4
-            className="text-sm font-medium mb-3 flex items-center"
+            className="text-sm font-medium mb-3"
             style={{ color: "var(--gray-2)" }}
           >
-            {title === "Morning" ? (
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-              </svg>
-            ) : (
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-              </svg>
-            )}
             {title} ({slots.length} slots)
           </h4>
           <div className="grid grid-cols-1 gap-2">
@@ -422,20 +284,21 @@ const StepSeven: React.FC<StepSevenProps> = ({
                     <span className="text-sm font-medium text-center w-full">
                       {slot.time}
                       <span className="hidden sm:inline">
-                        {" — "}
+                        {" "}
+                        {" — "}{" "}
                         {formData.selectedDate
                           ? format(formData.selectedDate, "EEEE, MMMM dd, yyyy")
                           : ""}
                       </span>
                       <span className="inline sm:hidden text-xs opacity-70">
-                        {" — "}
+                        {" "}
+                        {" — "}{" "}
                         {formData.selectedDate
                           ? format(formData.selectedDate, "MMM dd, yyyy")
                           : ""}
                       </span>
                     </span>
                   </div>
-
                   {slot.isBooked && (
                     <span className="text-xs text-red-600 py-1 rounded-xl">
                       Booked
@@ -448,12 +311,12 @@ const StepSeven: React.FC<StepSevenProps> = ({
         </div>
       );
     },
-    [formData.selectedTime, handleTimeSelect]
+    [formData.selectedTime, handleTimeSelect, formData.selectedDate]
   );
 
   return (
-    <div className="space-y-6 sm:space-y-8 px-2 sm:px-0 h-full">
-      {/* Meeting Benefits */}
+    <div className="space-y-8 px-2 sm:px-0 h-full">
+      {/* Collapsible */}
       <Collapsible
         open={isConsultationOpen}
         onOpenChange={setIsConsultationOpen}
@@ -461,119 +324,82 @@ const StepSeven: React.FC<StepSevenProps> = ({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
           className="rounded-xl border overflow-hidden"
           style={{
             backgroundColor: "var(--black-5)",
             borderColor: "var(--black-6)",
           }}
         >
-          <CollapsibleTrigger className="w-full p-4 sm:p-6 text-left hover:opacity-80 transition-colors">
+          <CollapsibleTrigger className="w-full p-4 sm:p-6 flex justify-between">
             <h4
-              className="font-semibold flex items-center justify-between"
+              className="font-semibold flex items-center"
               style={{ color: "var(--white)" }}
             >
-              <span className="flex items-center">
-                <Users
-                  className="w-5 h-5 mr-2"
-                  style={{ color: "var(--primary)" }}
-                />
-                What to Expect
-              </span>
-              <ChevronDown
-                className={`w-5 h-5 transition-transform duration-200 ${
-                  isConsultationOpen ? "rotate-180" : ""
-                }`}
+              <Users
+                className="w-5 h-5 mr-2"
                 style={{ color: "var(--primary)" }}
-              />
+              />{" "}
+              What to Expect
             </h4>
+            <ChevronDown
+              className={`w-5 h-5 transition-transform ${
+                isConsultationOpen ? "rotate-180" : ""
+              }`}
+              style={{ color: "var(--primary)" }}
+            />
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="px-4 sm:px-6 pb-4 sm:pb-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="px-4 sm:px-6 pb-4 sm:pb-6 grid sm:grid-cols-3 gap-3">
+              {[
+                {
+                  icon: MessageSquare,
+                  title: "Detailed Discussion",
+                  text: "Review your requirements and shipping options.",
+                },
+                {
+                  icon: CheckCircle,
+                  title: "Custom Quote",
+                  text: "Receive personalized pricing recommendations.",
+                },
+                {
+                  icon: CalendarDays,
+                  title: "Timeline Planning",
+                  text: "Set shipment dates and next steps clearly.",
+                },
+              ].map(({ icon: Icon, title, text }) => (
                 <div
+                  key={title}
                   className="rounded-xl p-3 sm:p-4"
-                  style={{
-                    backgroundColor: "var(--black-6)",
-                  }}
+                  style={{ backgroundColor: "var(--black-6)" }}
                 >
-                  <MessageSquare
-                    className="w-5 h-5 sm:w-6 sm:h-6 mb-1 sm:mb-2"
+                  <Icon
+                    className="w-5 h-5 mb-2"
                     style={{ color: "var(--primary)" }}
                   />
                   <h5
                     className="font-medium mb-1"
                     style={{ color: "var(--white)" }}
                   >
-                    Detailed Discussion
+                    {title}
                   </h5>
                   <p
                     className="text-xs sm:text-sm"
                     style={{ color: "var(--gray-2)" }}
                   >
-                    Review your specific requirements and optimize shipping
-                    solutions
+                    {text}
                   </p>
                 </div>
-                <div
-                  className="rounded-xl p-3 sm:p-4"
-                  style={{
-                    backgroundColor: "var(--black-6)",
-                  }}
-                >
-                  <CheckCircle
-                    className="w-5 h-5 sm:w-6 sm:h-6 mb-1 sm:mb-2"
-                    style={{ color: "var(--primary)" }}
-                  />
-                  <h5
-                    className="font-medium mb-1"
-                    style={{ color: "var(--white)" }}
-                  >
-                    Custom Quote
-                  </h5>
-                  <p
-                    className="text-xs sm:text-sm"
-                    style={{ color: "var(--gray-2)" }}
-                  >
-                    Receive personalized pricing and service recommendations
-                  </p>
-                </div>
-                <div
-                  className="rounded-xl p-3 sm:p-4"
-                  style={{
-                    backgroundColor: "var(--black-6)",
-                  }}
-                >
-                  <CalendarDays
-                    className="w-5 h-5 sm:w-6 sm:h-6 mb-1 sm:mb-2"
-                    style={{ color: "var(--primary)" }}
-                  />
-                  <h5
-                    className="font-medium mb-1"
-                    style={{ color: "var(--white)" }}
-                  >
-                    Timeline Planning
-                  </h5>
-                  <p
-                    className="text-xs sm:text-sm"
-                    style={{ color: "var(--gray-2)" }}
-                  >
-                    Establish clear timelines and next steps for your shipment
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </CollapsibleContent>
         </motion.div>
       </Collapsible>
 
-      {/* Calendar and Time Selection - Side by Side */}
+      {/* Calendar & Time Slots */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-        {/* Calendar Selection */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
           className="rounded-2xl shadow-lg border p-4 sm:p-6"
           style={{
             backgroundColor: "var(--black-5)",
@@ -587,7 +413,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
             <CalendarDays
               className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
               style={{ color: "var(--primary)" }}
-            />
+            />{" "}
             Select a Meeting Date
           </h3>
           <div className="flex flex-col items-center justify-center">
@@ -602,9 +428,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
                   !isDateAvailable(date)
                 }
                 className="rounded-md border-0 shadow-none w-full calendar-custom"
-                style={{
-                  backgroundColor: "transparent",
-                }}
+                style={{ backgroundColor: "transparent" }}
               />
             </div>
             <div className="mt-3 sm:mt-4 text-center w-full">
@@ -633,7 +457,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
                     style={{ color: "var(--black-6)" }}
                   >
                     Selected:{" "}
-                    {format(formData.selectedDate, "EEEE, MMMM dd, yyyy")}
+                    {format(formData.selectedDate!, "EEEE, MMMM dd, yyyy")}
                   </p>
                 </div>
               )}
@@ -641,13 +465,11 @@ const StepSeven: React.FC<StepSevenProps> = ({
           </div>
         </motion.div>
 
-        {/* Time Selection */}
         {(!isMobile || showTimeSection) && (
           <motion.div
             ref={timeSectionRef}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
             className={`rounded-2xl shadow-lg border p-4 sm:p-6 ${
               !formData.selectedDate ? "opacity-50 pointer-events-none" : ""
             }`}
@@ -663,8 +485,8 @@ const StepSeven: React.FC<StepSevenProps> = ({
               <Clock
                 className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
                 style={{ color: "var(--primary)" }}
-              />
-              Select a Time
+              />{" "}
+              Select a Time{" "}
               {formData.selectedDate && (
                 <span
                   className="ml-2 text-sm font-normal"
@@ -674,6 +496,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
                 </span>
               )}
             </h3>
+
             {!formData.selectedDate ? (
               <div className="text-center py-8">
                 <CalendarDays
@@ -686,7 +509,6 @@ const StepSeven: React.FC<StepSevenProps> = ({
               </div>
             ) : (
               <div className="space-y-6">
-                {/* Loading State */}
                 {isLoadingSlots && (
                   <div className="text-center py-4">
                     <div
@@ -702,7 +524,6 @@ const StepSeven: React.FC<StepSevenProps> = ({
                   </div>
                 )}
 
-                {/* Error State */}
                 {slotsError && (
                   <div className="text-center py-4">
                     <AlertCircle
@@ -722,7 +543,6 @@ const StepSeven: React.FC<StepSevenProps> = ({
                   </div>
                 )}
 
-                {/* ✅ Time Slots with proper morning/evening separation */}
                 {!isLoadingSlots && !slotsError && (
                   <>
                     <div
@@ -735,10 +555,8 @@ const StepSeven: React.FC<StepSevenProps> = ({
                       ⏰ All times are shown in your local timezone:{" "}
                       <strong>{userTimeZone}</strong>
                     </div>
-                    {/* Morning Slots */}
-                    {renderTimeSlots(morningSlots, "Morning")}
-                    {/* Evening Slots */}
-                    {renderTimeSlots(eveningSlots, "Evening")}
+                    {renderSlots(morningSlots, "Morning")}
+                    {renderSlots(eveningSlots, "Evening")}
 
                     <div className="mt-4 text-center">
                       {bookedSlots.length > 0 && (
@@ -746,7 +564,7 @@ const StepSeven: React.FC<StepSevenProps> = ({
                           className="text-xs p-2 rounded-xl"
                           style={{
                             color: "#ff4444",
-                            backgroundColor: "rgba(255, 68, 68, 0.1)",
+                            backgroundColor: "rgba(255,68,68,0.1)",
                           }}
                         >
                           ⚠️ {bookedSlots.length} slot(s) already booked for
@@ -762,110 +580,55 @@ const StepSeven: React.FC<StepSevenProps> = ({
         )}
       </div>
 
-      {/* User Details Form */}
-      {showUserDetails && formData.selectedTime && (
-        <motion.div
-          ref={userDetailsRef}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl shadow-lg border p-4 sm:p-6 md:p-8"
-          style={{
-            backgroundColor: "var(--black-5)",
-            borderColor: "var(--black-6)",
-          }}
+      {/* Name field (booking) - we only take name here since email is from FormStep */}
+      <div
+        className="rounded-2xl shadow-lg border p-4 sm:p-6 mt-6"
+        style={{
+          backgroundColor: "var(--black-5)",
+          borderColor: "var(--black-6)",
+        }}
+      >
+        <label
+          htmlFor="booking-name"
+          className="text-sm font-medium"
+          style={{ color: "var(--white)" }}
         >
-          <h3
-            className="text-base sm:text-lg font-semibold mb-4 sm:mb-6 flex items-center"
-            style={{ color: "var(--white)" }}
-          >
-            <User
-              className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
-              style={{ color: "var(--primary)" }}
-            />
-            Your Contact Information
-          </h3>
+          Full Name *
+        </label>
+        <input
+          id="booking-name"
+          type="text"
+          placeholder="Enter your full name"
+          value={formData.name || ""}
+          onChange={(e) => updateFormData("name", e.target.value)}
+          className="mt-2 w-full px-4 py-3 rounded-xl border-2"
+          style={{
+            backgroundColor: "var(--black-4)",
+            borderColor: formData.name ? "var(--primary)" : "var(--black-6)",
+            color: "var(--white-2)",
+          }}
+        />
+      </div>
 
-          <div className="space-y-4 sm:space-y-6">
-            <div className="space-y-2">
-              <Label
-                htmlFor="name"
-                className="text-sm font-medium"
-                style={{ color: "var(--white-2)" }}
-              >
-                Full Name *
-              </Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Enter your full name"
-                value={userDetails.name}
-                onChange={(e) =>
-                  handleUserDetailsChange("name", e.target.value)
-                }
-                className="h-12 text-base rounded-xl"
-                style={{
-                  backgroundColor: "var(--black-6)",
-                  borderColor: "var(--black-7)",
-                  color: "var(--white-2)",
-                }}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label
-                htmlFor="email"
-                className="text-sm font-medium"
-                style={{ color: "var(--white-2)" }}
-              >
-                Email Address *
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email address"
-                value={userDetails.email}
-                onChange={(e) =>
-                  handleUserDetailsChange("email", e.target.value)
-                }
-                className="h-12 text-base rounded-xl"
-                style={{
-                  backgroundColor: "var(--black-6)",
-                  borderColor: "var(--black-7)",
-                  color: "var(--white-2)",
-                }}
-                required
-              />
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Navigation */}
+      {/* Submit */}
       <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-0 pt-4 sm:pt-8">
         <Button
           onClick={handleFinalSubmit}
-          disabled={!isFormComplete || isSubmitting || false}
+          disabled={
+            !formData.selectedDate ||
+            !formData.selectedTime ||
+            !formData.name ||
+            isSubmitting
+          }
           className="px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg w-full sm:w-auto rounded-xl"
-          style={{
-            backgroundColor: "var(--primary2)",
-            color: "var(--black)",
-          }}
+          style={{ backgroundColor: "var(--primary2)", color: "var(--black)" }}
         >
           {isSubmitting ? (
-            <>
-              <div
-                className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin rounded-full border-2 border-t-transparent"
-                style={{
-                  borderColor: "var(--black)",
-                  borderTopColor: "transparent",
-                }}
-              />
-              Scheduling...
-            </>
+            "Scheduling..."
           ) : (
             <>
               <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              Schedule Meeting & Complete
+              Confirm Meeting
             </>
           )}
         </Button>
@@ -874,4 +637,4 @@ const StepSeven: React.FC<StepSevenProps> = ({
   );
 };
 
-export default StepSeven;
+export default BookingStep;
