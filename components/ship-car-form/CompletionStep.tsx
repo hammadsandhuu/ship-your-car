@@ -1,4 +1,3 @@
-// components/CompletionStep.tsx
 "use client";
 
 import type React from "react";
@@ -47,14 +46,14 @@ export const CompletionStep: React.FC<CompletionStepProps> = ({
         className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4"
         style={{ color: "var(--white)" }}
       >
-        Thank You for Your Submission!
+        How Would You Like to Proceed?
       </h3>
       <p
         className="text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed"
         style={{ color: "var(--gray-2)" }}
       >
-        Would you like to book a consultation call now, or would you prefer we
-        contact you within 24 hours?
+        Choose to schedule a consultation call right now, or submit your request
+        and we'll reach out to you within 24 hours.
       </p>
 
       <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 max-w-2xl mx-auto">
@@ -77,7 +76,7 @@ export const CompletionStep: React.FC<CompletionStepProps> = ({
             color: "var(--white-2)",
           }}
         >
-          {isSubmitting ? "Submitting..." : "Wait 24 Hours"}
+          {isSubmitting ? "Submitting..." : "Submit & Wait 24 Hours"}
         </Button>
       </div>
     </motion.div>
