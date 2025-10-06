@@ -6,24 +6,31 @@ import type { CarFormData, FormStep } from "@/types/car-shipping";
 import { submitCarShipping } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 
+const initialFormData: CarFormData = {
+  numberOfCars: "",
+  carType: "",
+  customCarType: "",
+  pickupState: "",
+  dropOffCity: "Riyadh",
+  mode: "",
+  timeline: "",
+  whatsapp: "",
+  email: "",
+  name: "",
+};
+
 export const useCarShippingForm = () => {
-  const [formData, setFormData] = useState<CarFormData>({
-    numberOfCars: "",
-    carType: "",
-    customCarType: "",
-    pickupState: "",
-    dropOffCity: "Riyadh",
-    mode: "",
-    timeline: "",
-    whatsapp: "",
-    email: "",
-    name: "",
-  });
+  const [formData, setFormData] = useState<CarFormData>(initialFormData);
 
   const [currentStep, setCurrentStep] = useState<FormStep>("initial");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const updateFormData = (field: keyof CarFormData, value: any) =>
     setFormData((prev) => ({ ...prev, [field]: value }));
+
+  const resetForm = () => {
+    setFormData(initialFormData);
+    setCurrentStep("initial");
+  };
 
   const handleInitialSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,28 +51,22 @@ export const useCarShippingForm = () => {
         description:
           "Your request has been submitted. We'll contact you within 24 hours.",
         variant: "default",
-        className: "border-2",
         style: {
-          backgroundColor: "var(--black-4)",
+          backgroundColor: "var(--black-2)",
           borderColor: "var(--primary)",
           color: "var(--white)",
         },
       });
+      resetForm();
       setTimeout(() => {
         window.location.href = "https://www.justsabit.com/";
-      }, 3000);
+      }, 10000);
     } catch (error) {
       console.log("error", error);
       toast({
         title: "Error",
         description: "Failed to submit your request. Please try again.",
         variant: "destructive",
-        className: "border-2",
-        style: {
-          backgroundColor: "var(--black-4)",
-          borderColor: "var(--primary)",
-          color: "var(--white)",
-        },
       });
     } finally {
       setIsSubmitting(false);
@@ -81,10 +82,16 @@ export const useCarShippingForm = () => {
         title: "Booking Confirmed!",
         description: "Your meeting has been scheduled successfully.",
         variant: "default",
+        style: {
+          backgroundColor: "var(--black-2)",
+          borderColor: "var(--primary)",
+          color: "var(--white)",
+        },
       });
+      resetForm();
       setTimeout(() => {
         window.location.href = "https://www.justsabit.com/";
-      }, 8000);
+      }, 10000);
     } catch (error) {
       console.log("error", error);
       toast({
