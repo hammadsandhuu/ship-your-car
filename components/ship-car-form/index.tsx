@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useCarShippingForm } from "@/hooks/use-car-shipping-form";

@@ -1,13 +1,8 @@
 // components/BookingStep.tsx
 "use client";
 
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useMemo,
-} from "react";
+import type React from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -36,7 +31,6 @@ interface BookingStepProps {
   onSubmit?: (finalData: Partial<CarFormData>) => Promise<void> | void;
   isSubmitting?: boolean;
 }
-
 
 interface BookedSlot {
   selectedTime: string;
@@ -92,7 +86,7 @@ const BookingStep: React.FC<BookingStepProps> = ({
       const ksaDate = new Date(selectedDate);
       ksaDate.setHours(hours, minutes, 0, 0);
 
-      const utcTime = ksaDate.getTime() - 3 * 60 * 60 * 1000; // KSA = UTC+3
+      const utcTime = ksaDate.getTime() - 3 * 60 * 60 * 1000;
       const localDate = new Date(utcTime);
 
       const localTime = localDate.toLocaleTimeString("en-US", {
@@ -212,12 +206,9 @@ const BookingStep: React.FC<BookingStepProps> = ({
     [isTimeSlotBooked, updateFormData]
   );
 
-  // Add name to formData still handled via updateFormData directly in UI.
   const handleFinalSubmit = useCallback(() => {
     if (!formData.selectedDate) return alert("Please select a meeting date");
     if (!formData.selectedTime) return alert("Please select a meeting time");
-    if (!formData.name || !formData.name.trim())
-      return alert("Please enter your full name");
 
     if (isTimeSlotBooked(formData.selectedTime)) {
       alert(
@@ -227,7 +218,6 @@ const BookingStep: React.FC<BookingStepProps> = ({
     }
 
     const finalPayload = {
-      name: formData.name,
       selectedDate: formData.selectedDate,
       selectedTime: formData.selectedTime,
       selectedTimeLocal: formData.selectedTimeLocal,
@@ -580,45 +570,12 @@ const BookingStep: React.FC<BookingStepProps> = ({
         )}
       </div>
 
-      {/* Name field (booking) - we only take name here since email is from FormStep */}
-      <div
-        className="rounded-2xl shadow-lg border p-4 sm:p-6 mt-6"
-        style={{
-          backgroundColor: "var(--black-5)",
-          borderColor: "var(--black-6)",
-        }}
-      >
-        <label
-          htmlFor="booking-name"
-          className="text-sm font-medium"
-          style={{ color: "var(--white)" }}
-        >
-          Full Name *
-        </label>
-        <input
-          id="booking-name"
-          type="text"
-          placeholder="Enter your full name"
-          value={formData.name || ""}
-          onChange={(e) => updateFormData("name", e.target.value)}
-          className="mt-2 w-full px-4 py-3 rounded-xl border-2"
-          style={{
-            backgroundColor: "var(--black-4)",
-            borderColor: formData.name ? "var(--primary)" : "var(--black-6)",
-            color: "var(--white-2)",
-          }}
-        />
-      </div>
-
       {/* Submit */}
       <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-0 pt-4 sm:pt-8">
         <Button
           onClick={handleFinalSubmit}
           disabled={
-            !formData.selectedDate ||
-            !formData.selectedTime ||
-            !formData.name ||
-            isSubmitting
+            !formData.selectedDate || !formData.selectedTime || isSubmitting
           }
           className="px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg w-full sm:w-auto rounded-xl"
           style={{ backgroundColor: "var(--primary2)", color: "var(--black)" }}

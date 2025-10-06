@@ -1,15 +1,16 @@
-// hooks/use-car-shipping-form.ts
 "use client";
-
 import { useState } from "react";
-import { CarFormData, FormStep } from "@/types/car-shipping";
-import { useToast } from "@/hooks/use-toast";
+import type React from "react";
+
+import type { CarFormData, FormStep } from "@/types/car-shipping";
 import { submitCarShipping } from "@/lib/api";
+import { toast } from "@/hooks/use-toast";
 
 export const useCarShippingForm = () => {
   const [formData, setFormData] = useState<CarFormData>({
     numberOfCars: "",
     carType: "",
+    customCarType: "",
     pickupState: "",
     dropOffCity: "Riyadh",
     mode: "",
@@ -21,8 +22,6 @@ export const useCarShippingForm = () => {
 
   const [currentStep, setCurrentStep] = useState<FormStep>("initial");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
-
   const updateFormData = (field: keyof CarFormData, value: any) =>
     setFormData((prev) => ({ ...prev, [field]: value }));
 
@@ -41,9 +40,10 @@ export const useCarShippingForm = () => {
     try {
       await submitCarShipping(formData, "wait-24-hours");
       toast({
-        title: "Request Submitted Successfully!",
+        title: "Success!",
         description:
-          "We'll contact you within 24 hours with a quote and next steps.",
+          "Your request has been submitted. We'll contact you within 24 hours.",
+        variant: "default",
         className: "border-2",
         style: {
           backgroundColor: "var(--black-4)",
@@ -51,16 +51,21 @@ export const useCarShippingForm = () => {
           color: "var(--white)",
         },
       });
-      setTimeout(
-        () => (window.location.href = "https://www.justsabit.com/"),
-        2000
-      );
+      setTimeout(() => {
+        window.location.href = "https://www.justsabit.com/";
+      }, 3000);
     } catch (error) {
+      console.log("error", error);
       toast({
-        title: "Submission Failed",
-        description: "Please try again or contact our support team.",
+        title: "Error",
+        description: "Failed to submit your request. Please try again.",
         variant: "destructive",
         className: "border-2",
+        style: {
+          backgroundColor: "var(--black-4)",
+          borderColor: "var(--primary)",
+          color: "var(--white)",
+        },
       });
     } finally {
       setIsSubmitting(false);
@@ -72,29 +77,20 @@ export const useCarShippingForm = () => {
     try {
       const payload = { ...formData, ...bookingData };
       await submitCarShipping(payload, "book-now");
-
       toast({
-        title: "Consultation Scheduled Successfully!",
-        description:
-          "We'll send you a calendar invite and call you at the scheduled time.",
-        className: "border-2",
-        style: {
-          backgroundColor: "var(--black-4)",
-          borderColor: "var(--primary)",
-          color: "var(--white)",
-        },
+        title: "Booking Confirmed!",
+        description: "Your meeting has been scheduled successfully.",
+        variant: "default",
       });
-
-      setTimeout(
-        () => (window.location.href = "https://www.justsabit.com/"),
-        2000
-      );
+      setTimeout(() => {
+        window.location.href = "https://www.justsabit.com/";
+      }, 8000);
     } catch (error) {
+      console.log("error", error);
       toast({
-        title: "Scheduling Failed",
-        description: "Please try again or contact our support team.",
+        title: "Error",
+        description: "Failed to complete booking. Please try again.",
         variant: "destructive",
-        className: "border-2",
       });
     } finally {
       setIsSubmitting(false);

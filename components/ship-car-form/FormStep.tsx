@@ -1,8 +1,10 @@
 // components/FormStep.tsx
 "use client";
 
+import type React from "react";
+
 import { motion } from "framer-motion";
-import { CarFormData } from "@/types/car-shipping";
+import type { CarFormData } from "@/types/car-shipping";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +21,7 @@ import {
   MessageCircle,
   Mail,
   ArrowRight,
+  User,
 } from "lucide-react";
 import {
   US_STATES,
@@ -222,6 +225,31 @@ export const FormStep: React.FC<FormStepProps> = ({
         {renderButtonGroup(SHIPPING_MODES, "mode", "Mode")}
         {renderButtonGroup(TIMELINES, "timeline", "Timeline")}
 
+        <div className="space-y-2">
+          <Label
+            htmlFor="name"
+            className="text-sm sm:text-base font-semibold flex items-center gap-2"
+            style={{ color: "var(--white)" }}
+          >
+            <User className="w-4 h-4" style={{ color: "var(--primary)" }} />{" "}
+            Full Name *
+          </Label>
+          <Input
+            id="name"
+            type="text"
+            placeholder="Enter your full name"
+            value={formData.name}
+            onChange={(e) => updateFormData("name", e.target.value)}
+            required
+            className="h-10 sm:h-11 text-sm rounded-xl border-2 transition-all hover:border-opacity-80"
+            style={{
+              backgroundColor: "var(--black-5)",
+              borderColor: formData.name ? "var(--primary)" : "var(--black-6)",
+              color: "var(--white-2)",
+            }}
+          />
+        </div>
+
         <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
           <div className="space-y-2">
             <Label
@@ -229,7 +257,7 @@ export const FormStep: React.FC<FormStepProps> = ({
               className="text-sm sm:text-base font-semibold flex items-center gap-2"
               style={{ color: "var(--white)" }}
             >
-              <MessageCircle  
+              <MessageCircle
                 className="w-4 h-4"
                 style={{ color: "var(--primary)" }}
               />{" "}

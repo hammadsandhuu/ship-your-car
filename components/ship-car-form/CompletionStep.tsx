@@ -1,6 +1,8 @@
 // components/CompletionStep.tsx
 "use client";
 
+import type React from "react";
+
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Clock } from "lucide-react";
